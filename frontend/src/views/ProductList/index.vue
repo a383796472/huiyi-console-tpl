@@ -1,0 +1,292 @@
+<template>
+  <div class="container">
+    <div class="list-header">
+      <h2>产品管理</h2>
+    </div>
+
+    <div class="search-area">
+      <el-button type="primary" @click="handleClick">
+        <el-icon style="margin-right: 4px;"><Plus /></el-icon>
+        添加产品
+      </el-button>
+      <el-select v-model="searchType" class="search-type-select">
+        <el-option label="按品名或SKU" value="all"></el-option>
+      </el-select>
+      <el-input
+        v-model="searchKeyword"
+        placeholder="请输入品名或SKU搜索"
+        class="search-input"
+        @keyup.enter="handleSearch"
+      >
+        <template #append>
+          <el-button @click="handleSearch">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </el-button>
+        </template>
+      </el-input>
+    </div>
+
+    <div class="table-container">
+      <el-table :data="tableData" style="width: 100%" v-loading="loading">
+        <el-table-column label="图片" width="80" align="center">
+          <template #default="{ row }">
+            <div v-if="getThumbnail(row)" class="product-image-cell">
+              <img :src="baseURL + getThumbnail(row)" alt="" />
+            </div>
+            <div v-else class="no-image-placeholder">无图</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="品名" min-width="120">
+          <template #default="{ row }">{{ row.name || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="SKU" label="SKU" min-width="120">
+          <template #default="{ row }">{{ row.SKU || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="product_type" label="产品类型" min-width="100">
+          <template #default="{ row }">{{ row.product_type || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="spu" label="关联SPU" min-width="120">
+          <template #default="{ row }">{{ row.spu || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="chinese_name" label="中文名称" min-width="120">
+          <template #default="{ row }">{{ row.chinese_name || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="dev_owner" label="开发负责人" min-width="100">
+          <template #default="{ row }">{{ row.dev_owner || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="sales_owner" label="销售负责人" min-width="100">
+          <template #default="{ row }">{{ row.sales_owner || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="sales_status" label="销售状态" min-width="100">
+          <template #default="{ row }">
+            <el-tag :type="getStatusType(row.sales_status)">{{ row.sales_status || '-' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="vehicle_category" label="车型类别" min-width="100">
+          <template #default="{ row }">{{ row.vehicle_category || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="created_at" label="创建时间" min-width="140">
+          <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" min-width="120">
+          <template #default="{ row }">
+            <el-button link type="primary" size="small" @click="handleEdit(row.id)">
+              编辑
+            </el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row.id)">
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="table-page">
+        <el-pagination 
+          background 
+          layout="prev, pager, next" 
+          :total="total" 
+          :page-size="pageSize"
+          :current-page="currentPage"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
+import request, { baseURL } from '@/utils/request'
+
+const router = useRouter()
+const loading = ref(false)
+const tableData = ref<any[]>([])
+const searchKeyword = ref('')
+const searchType = ref('all')
+const total = ref(0)
+const pageSize = ref(10)
+const currentPage = ref(1)
+
+const formatTime = (time: string) => {
+  if (!time) return '-'
+  const date = new Date(time)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+const getThumbnail = (row: any) => {
+  if (row.extra_images) {
+    try {
+      const list = JSON.parse(row.extra_images)
+      if (Array.isArray(list) && list.length > 0) {
+        return list[0]
+      }
+    } catch {}
+  }
+  return row.image || ''
+}
+
+const getStatusType = (status: string) => {
+  const map: Record<string, string> = {
+    '在售': 'success',
+    '停售': 'danger',
+    '预售': 'warning',
+    '待定': 'info'
+  }
+  return map[status] || 'default'
+}
+
+const handleEdit = (id: number) => {
+  router.push(`/creatProduct?id=${id}`)
+}
+
+const handleClick = () => {
+  router.push('/creatProduct')
+}
+
+const handleSearch = () => {
+  currentPage.value = 1
+  fetchProducts()
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  fetchProducts()
+}
+
+const fetchProducts = async () => {
+  loading.value = true
+  try {
+    const params = new URLSearchParams()
+    params.append('page', currentPage.value.toString())
+    params.append('pageSize', pageSize.value.toString())
+    if (searchKeyword.value) {
+      params.append('keyword', searchKeyword.value)
+    }
+    
+    const res = await request.get(`/api/products?${params.toString()}`)
+    if (res.data.code === 200 && res.data.data) {
+      tableData.value = res.data.data.list || []
+      total.value = res.data.data.total || 0
+    }
+  } catch (error) {
+    console.error('获取数据失败', error)
+    ElMessage.error('获取产品列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleDelete = (id: number) => {
+  ElMessageBox.confirm(
+    '确定要删除该产品吗？此操作无法撤销',
+    '警告',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      const res = await request.delete(`/api/products/${id}`)
+      if (res.data.code === 200) {
+        ElMessage.success('删除产品成功')
+        fetchProducts()
+      }
+    } catch (error) {
+      ElMessage.error('删除产品失败')
+    }
+  }).catch(() => {
+    ElMessage.info('已取消删除')
+  })
+}
+
+onMounted(() => {
+  fetchProducts()
+})
+</script>
+
+<style lang="scss" scoped>
+.container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+.list-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #303133;
+    margin: 0;
+  }
+}
+
+.search-area {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .search-type-select {
+    width: 140px;
+  }
+
+  .search-input {
+    width: 300px;
+  }
+}
+
+.table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+
+  .table-page {
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+    margin-bottom: 0;
+    padding-top: 16px;
+  }
+}
+
+.product-image-cell {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.no-image-placeholder {
+  width: 40px;
+  height: 40px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #c0c4cc;
+}
+</style>

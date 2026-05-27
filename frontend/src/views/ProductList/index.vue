@@ -6,7 +6,7 @@
         <el-icon style="margin-right: 4px;"><Plus /></el-icon>
         添加产品
       </el-button>
-      <el-button @click="handleExport">
+      <el-button v-if="false" @click="handleExport">
         <el-icon style="margin-right: 4px;"><Download /></el-icon>
         导出Excel
       </el-button>
@@ -34,10 +34,17 @@
       <el-table :data="tableData" style="width: 100%" v-loading="loading">
         <el-table-column label="图片" width="80" align="center">
           <template #default="{ row }">
-            <div v-if="getThumbnail(row)" class="product-image-cell">
-              <img :src="baseURL + getThumbnail(row)" alt="" />
+            <div class="product-image-cell">
+              <img
+                v-if="getThumbnail(row)"
+                :src="getImgSrc(row)"
+                @error="onImgError"
+                @load="onImgLoad"
+                :style="{ display: imgLoadedMap[row.id] !== false ? '' : 'none' }"
+                alt=""
+              />
+              <div v-if="!getThumbnail(row) || imgLoadedMap[row.id] === false" class="no-image-placeholder">无图</div>
             </div>
-            <div v-else class="no-image-placeholder">无图</div>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="品名" min-width="120">
@@ -102,7 +109,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus, Download } from '@element-plus/icons-vue'
@@ -116,6 +123,25 @@ const searchType = ref('all')
 const total = ref(0)
 const pageSize = ref(10)
 const currentPage = ref(1)
+const imgLoadedMap = reactive<Record<number, boolean>>({})
+
+const onImgError = (e: Event) => {
+  const img = e.target as HTMLImageElement
+  const rowId = img.closest('tr')?.rowIndex
+  if (rowId) {
+    const row = tableData.value[rowId - 1]
+    if (row) imgLoadedMap[row.id] = false
+  }
+}
+
+const onImgLoad = (e: Event) => {
+  const img = e.target as HTMLImageElement
+  const rowId = img.closest('tr')?.rowIndex
+  if (rowId) {
+    const row = tableData.value[rowId - 1]
+    if (row) imgLoadedMap[row.id] = true
+  }
+}
 
 const formatTime = (time: string) => {
   if (!time) return '-'
@@ -135,7 +161,14 @@ const getThumbnail = (row: any) => {
       }
     } catch {}
   }
-  return row.image || ''
+  return row.image || null
+}
+
+const getImgSrc = (row: any) => {
+  const path = getThumbnail(row)
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return baseURL + (path.startsWith('/') ? path : '/' + path)
 }
 
 const getStatusType = (status: string) => {
@@ -192,6 +225,8 @@ const fetchProducts = async () => {
     const res = await request.get(`/api/products?${params.toString()}`)
     if (res.data.code === 200 && res.data.data) {
       tableData.value = res.data.data.list || []
+      const keys = Object.keys(imgLoadedMap)
+      keys.forEach(k => delete imgLoadedMap[Number(k)])
       total.value = res.data.data.total || 0
     }
   } catch (error) {

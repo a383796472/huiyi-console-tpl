@@ -164,8 +164,20 @@ exports.createUser = async (req, res) => {
       return res.status(409).json({ code: 409, message: '用户名已存在' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const userRole = role || 'user';
+
+    // 只有超级管理员才能创建超级管理员
+    if (userRole === 'super_admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ code: 403, message: '无权创建超级管理员角色' });
+    }
+
+    // 验证角色是否存在
+    const [roleRows] = await db.query('SELECT id FROM roles WHERE name = ?', [userRole]);
+    if (roleRows.length === 0) {
+      return res.status(400).json({ code: 400, message: '无效的角色' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const [result] = await db.query(
       'INSERT INTO users (username, password, email, phone, real_name, role, status) VALUES (?, ?, ?, ?, ?, ?, 1)',
@@ -179,6 +191,70 @@ exports.createUser = async (req, res) => {
     });
   } catch (error) {
     console.error('创建用户失败：', error);
+    res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { username, password, email, phone, real_name } = req.body;
+
+    const [existing] = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+    if (existing.length === 0) {
+      return res.status(404).json({ code: 404, message: '用户不存在' });
+    }
+
+    const updateFields = [];
+    const updateParams = [];
+
+    if (username !== undefined) {
+      const [dup] = await db.query('SELECT id FROM users WHERE username = ? AND id != ?', [username, userId]);
+      if (dup.length > 0) {
+        return res.status(409).json({ code: 409, message: '用户名已被占用' });
+      }
+      updateFields.push('username = ?');
+      updateParams.push(username);
+    }
+    if (password !== undefined && password !== '') {
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      updateFields.push('password = ?');
+      updateParams.push(hashedPassword);
+    }
+    if (email !== undefined) {
+      updateFields.push('email = ?');
+      updateParams.push(email || null);
+    }
+    if (phone !== undefined) {
+      updateFields.push('phone = ?');
+      updateParams.push(phone || null);
+    }
+    if (real_name !== undefined) {
+      updateFields.push('real_name = ?');
+      updateParams.push(real_name || null);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ code: 400, message: '没有需要更新的字段' });
+    }
+
+    updateFields.push('updated_at = NOW()');
+    updateParams.push(userId);
+
+    await db.query(`UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`, updateParams);
+
+    const [updated] = await db.query(
+      'SELECT id, username, email, phone, real_name, role, status FROM users WHERE id = ?',
+      [userId]
+    );
+
+    res.status(200).json({
+      code: 200,
+      message: '个人资料更新成功',
+      data: updated[0]
+    });
+  } catch (error) {
+    console.error('更新个人资料失败：', error);
     res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
   }
 };
@@ -226,6 +302,15 @@ exports.updateUser = async (req, res) => {
       if (currentUser.role === 'super_admin' && req.user.id !== Number(id)) {
         return res.status(403).json({ code: 403, message: '不能修改其他超级管理员的角色' });
       }
+      // 只有超级管理员才能将用户设为超级管理员
+      if (role === 'super_admin' && req.user.role !== 'super_admin') {
+        return res.status(403).json({ code: 403, message: '无权设置超级管理员角色' });
+      }
+      // 验证角色是否存在
+      const [roleCheck] = await db.query('SELECT id FROM roles WHERE name = ?', [role]);
+      if (roleCheck.length === 0) {
+        return res.status(400).json({ code: 400, message: '无效的角色' });
+      }
       updateFields.push('role = ?');
       updateParams.push(role);
     }
@@ -250,6 +335,47 @@ exports.updateUser = async (req, res) => {
     res.status(200).json({ code: 200, message: '用户更新成功' });
   } catch (error) {
     console.error('更新用户失败：', error);
+    res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
+  }
+};
+
+exports.toggleUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (status !== 0 && status !== 1) {
+      return res.status(400).json({ code: 400, message: '状态值无效，必须为 0 或 1' });
+    }
+
+    const [existing] = await db.query('SELECT id, role, status FROM users WHERE id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ code: 404, message: '用户不存在' });
+    }
+
+    const targetUser = existing[0];
+
+    if (targetUser.role === 'super_admin') {
+      return res.status(403).json({ code: 403, message: '不能停用/启用超级管理员' });
+    }
+
+    if (targetUser.status === status) {
+      return res.status(200).json({
+        code: 200,
+        message: status === 1 ? '用户已处于启用状态' : '用户已处于停用状态',
+        data: { id: Number(id), status }
+      });
+    }
+
+    await db.query('UPDATE users SET status = ?, updated_at = NOW() WHERE id = ?', [status, id]);
+
+    res.status(200).json({
+      code: 200,
+      message: status === 1 ? '用户已启用' : '用户已停用',
+      data: { id: Number(id), status }
+    });
+  } catch (error) {
+    console.error('切换用户状态失败：', error);
     res.status(500).json({ code: 500, message: '服务器内部错误', error: error.message });
   }
 };

@@ -1,8 +1,5 @@
 <template>
   <div class="create-user" v-loading="loading">
-    <div class="user-header">
-      <h2>{{ route.query.id ? '编辑用户' : '添加用户' }}</h2>
-    </div>
 
     <el-form ref="formRef" :model="formData" label-width="120px" class="user-form">
       <!-- 用户名 -->
@@ -60,8 +57,9 @@
       <!-- 角色 -->
       <el-form-item label="角色" prop="role">
         <el-select v-model="formData.role" placeholder="请选择角色">
-          <el-option label="普通用户" value="user"></el-option>
+          <el-option v-if="currentUserRole === 'super_admin'" label="超级管理员" value="super_admin"></el-option>
           <el-option label="管理员" value="admin"></el-option>
+          <el-option label="普通用户" value="user"></el-option>
         </el-select>
       </el-form-item>
 
@@ -95,6 +93,15 @@ const route = useRoute()
 const loading = ref(false)
 const isSubmitting = ref(false)
 
+const currentUserRole = ref('user')
+try {
+  const stored = localStorage.getItem('userInfo')
+  if (stored) {
+    const info = JSON.parse(stored)
+    currentUserRole.value = info.role || 'user'
+  }
+} catch {}
+
 const formData = reactive({
   username: '',
   password: '',
@@ -108,7 +115,7 @@ const formData = reactive({
 
 // 获取用户详情
 const fetchUserDetail = async () => {
-  const id = route.query.id
+  const id = route.query.id as string
   if (!id) return
   
   loading.value = true

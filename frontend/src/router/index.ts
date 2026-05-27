@@ -48,6 +48,12 @@ const routes = [
         component: () => import('../views/users/create.vue'),
         meta: { title: '添加用户', requiresAuth: true }
       },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('../views/profile/index.vue'),
+        meta: { title: '个人中心', requiresAuth: true }
+      },
     ]
   },
   {
@@ -78,7 +84,25 @@ router.beforeEach((to, _from, next) => {
   // 如果目标路由需要认证，但未登录
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
-  } else if (to.path === '/login' && isAuthenticated) {
+    return
+  }
+
+  // 用户管理模块仅超级管理员可访问
+  if (to.path.startsWith('/users')) {
+    try {
+      const raw = localStorage.getItem('userInfo')
+      const userInfo = raw ? JSON.parse(raw) : null
+      if (!userInfo || userInfo.role !== 'super_admin') {
+        next('/homeView')
+        return
+      }
+    } catch {
+      next('/homeView')
+      return
+    }
+  }
+
+  if (to.path === '/login' && isAuthenticated) {
     next('/')
   } else {
     next()

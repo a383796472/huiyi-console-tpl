@@ -1,13 +1,14 @@
 <template>
   <div class="container">
-    <div class="list-header">
-      <h2>产品管理</h2>
-    </div>
 
     <div class="search-area">
       <el-button type="primary" @click="handleClick">
         <el-icon style="margin-right: 4px;"><Plus /></el-icon>
         添加产品
+      </el-button>
+      <el-button @click="handleExport">
+        <el-icon style="margin-right: 4px;"><Download /></el-icon>
+        导出Excel
       </el-button>
       <el-select v-model="searchType" class="search-type-select">
         <el-option label="按品名或SKU" value="all"></el-option>
@@ -104,8 +105,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import request, { baseURL } from '@/utils/request'
+import { Plus, Download } from '@element-plus/icons-vue'
+import request, { baseURL, downloadFile } from '@/utils/request'
 
 const router = useRouter()
 const loading = ref(false)
@@ -157,6 +158,15 @@ const handleEdit = (id: number) => {
 
 const handleClick = () => {
   router.push('/creatProduct')
+}
+
+const handleExport = async () => {
+  try {
+    await downloadFile('/api/export/products', '产品列表.xlsx')
+    ElMessage.success('导出成功')
+  } catch {
+    ElMessage.error('导出失败')
+  }
 }
 
 const handleSearch = () => {

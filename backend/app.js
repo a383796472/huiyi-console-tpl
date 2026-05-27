@@ -26,6 +26,14 @@ app.use('/api/products', productRoutes);
 const uploadRoutes = require('./routes/upload.routes');
 app.use('/api/upload', uploadRoutes);
 
+// 挂载角色/权限路由
+const rolesRoutes = require('./routes/roles.routes');
+app.use('/api/roles', rolesRoutes);
+
+// 挂载导出路由
+const exportRoutes = require('./routes/export.routes');
+app.use('/api/export', exportRoutes);
+
 app.listen(3000, () => {
   console.log('✅ 后端服务已运行在 http://localhost:3000');
 });

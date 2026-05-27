@@ -1,15 +1,15 @@
 <template>
   <div class="container">
-    <!-- 页面标题 -->
-    <div class="list-header">
-      <h2>用户管理</h2>
-    </div>
 
     <!-- 搜索区域 -->
     <div class="search-area">
       <el-button type="primary" @click="handleAddUser">
         <el-icon style="margin-right: 4px;"><Plus /></el-icon>
         添加用户
+      </el-button>
+      <el-button @click="handleExport">
+        <el-icon style="margin-right: 4px;"><Download /></el-icon>
+        导出Excel
       </el-button>
       <el-select v-model="searchType" class="search-type-select">
         <el-option label="按用户名" value="username"></el-option>
@@ -31,11 +31,6 @@
           </el-button>
         </template>
       </el-input>
-      <el-select v-model="statusFilter" class="status-filter-select" placeholder="状态筛选">
-        <el-option label="全部" value=""></el-option>
-        <el-option label="启用" value="1"></el-option>
-        <el-option label="停用" value="0"></el-option>
-      </el-select>
     </div>
 
     <!-- 用户列表表格 -->
@@ -114,8 +109,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Download } from '@element-plus/icons-vue'
 import { getUsers, updateUserStatus, deleteUser } from '@/api/user'
+import { downloadFile } from '@/utils/request'
 
 const router = useRouter()
 const loading = ref(false)
@@ -125,7 +121,6 @@ const pageSize = ref(10)
 const currentPage = ref(1)
 const searchKeyword = ref('')
 const searchType = ref('username')
-const statusFilter = ref('')
 
 const searchPlaceholder = computed(() => {
   const map: Record<string, string> = {
@@ -139,10 +134,9 @@ const searchPlaceholder = computed(() => {
 // 获取角色文本
 const getRoleText = (role: string | number) => {
   const roleMap: Record<string | number, string> = {
+    'super_admin': '超级管理员',
     'admin': '管理员',
-    'user': '普通用户',
-    1: '管理员',
-    0: '普通用户'
+    'user': '普通用户'
   }
   return roleMap[role] || '未知'
 }
@@ -150,10 +144,9 @@ const getRoleText = (role: string | number) => {
 // 获取角色标签类型
 const getRoleType = (role: string | number) => {
   const roleMap: Record<string | number, string> = {
-    'admin': 'danger',
-    'user': 'info',
-    1: 'danger',
-    0: 'info'
+    'super_admin': 'danger',
+    'admin': 'warning',
+    'user': 'info'
   }
   return roleMap[role] || 'default'
 }
@@ -171,6 +164,15 @@ const formatTime = (time: string) => {
 // 跳转添加用户
 const handleAddUser = () => {
   router.push('/users/create')
+}
+
+const handleExport = async () => {
+  try {
+    await downloadFile('/api/export/users', '用户列表.xlsx')
+    ElMessage.success('导出成功')
+  } catch {
+    ElMessage.error('导出失败')
+  }
 }
 
 // 编辑用户
@@ -198,10 +200,13 @@ const handleToggleStatus = (row: any) => {
       })
       if (res.data.code === 200) {
         row.status = row.status === 1 ? 0 : 1
-        ElMessage.success(`${action}成功`)
+        ElMessage.success(res.data.message || `${action}成功`)
+      } else {
+        ElMessage.error(res.data?.message || `${action}失败`)
       }
-    } catch (error) {
-      ElMessage.error(`${action}失败`)
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || `${action}失败`
+      ElMessage.error(msg)
     }
   }).catch(() => {
     ElMessage.info('已取消操作')
@@ -255,16 +260,22 @@ const fetchUsers = async () => {
       page: currentPage.value,
       pageSize: pageSize.value,
       searchType: searchKeyword.value ? searchType.value : undefined,
-      keyword: searchKeyword.value || undefined,
-      status: statusFilter.value || undefined
+      keyword: searchKeyword.value || undefined
     })
-    if (res.data.code === 200 && res.data.data) {
-      tableData.value = res.data.data.list || []
-      total.value = res.data.data.total || 0
+    const body = res.data
+    if (body && body.code === 200) {
+      const data = body.data || body
+      const list = Array.isArray(data.list) ? data.list : (Array.isArray(data) ? data : [])
+      tableData.value = list
+      total.value = data.total || list.length || 0
+    } else {
+      ElMessage.error(body?.message || '获取用户列表失败')
+      tableData.value = []
+      total.value = 0
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('获取用户列表失败', error)
-    ElMessage.error('获取用户列表失败')
+    ElMessage.error(error?.response?.data?.message || '获取用户列表失败')
     tableData.value = []
     total.value = 0
   } finally {
@@ -314,10 +325,6 @@ onMounted(() => {
 
   .search-input {
     width: 300px;
-  }
-  
-  .status-filter-select {
-    width: 140px;
   }
 }
 

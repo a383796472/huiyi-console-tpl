@@ -10,7 +10,6 @@ interface GetUsersParams {
   pageSize?: number
   searchType?: string
   keyword?: string
-  status?: string
 }
 
 interface CreateUserParams {
@@ -56,6 +55,21 @@ export const getUserById = (id: number | string) => {
   })
 }
 
+export const getCurrentUser = () => {
+  return request({
+    url: '/api/users/me',
+    method: 'GET'
+  })
+}
+
+export const updateProfile = (data: { username?: string; password?: string; email?: string; phone?: string; real_name?: string }) => {
+  return request({
+    url: '/api/users/me/profile',
+    method: 'PUT',
+    data
+  })
+}
+
 export const createUser = (data: CreateUserParams) => {
   return request({
     url: '/api/users',
@@ -84,5 +98,34 @@ export const deleteUser = (id: number | string) => {
   return request({
     url: `/api/users/${id}`,
     method: 'DELETE'
+  })
+}
+
+export const getRoles = () => {
+  return request({
+    url: '/api/roles',
+    method: 'GET'
+  })
+}
+
+export const getRoleById = (id: number | string) => {
+  return request({
+    url: `/api/roles/${id}`,
+    method: 'GET'
+  })
+}
+
+export const getAllPermissions = () => {
+  return request({
+    url: '/api/roles/permissions',
+    method: 'GET'
+  })
+}
+
+export const updateRolePermissions = (id: number | string, permissionIds: number[]) => {
+  return request({
+    url: `/api/roles/${id}/permissions`,
+    method: 'PUT',
+    data: { permissionIds }
   })
 }

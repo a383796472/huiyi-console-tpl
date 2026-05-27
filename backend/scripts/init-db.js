@@ -21,6 +21,95 @@ async function initDB() {
     `);
     console.log('users 表创建成功！');
 
+    console.log('正在重建 roles 表...');
+    await db.query('DROP TABLE IF EXISTS role_permissions');
+    await db.query('DROP TABLE IF EXISTS permissions');
+    await db.query('DROP TABLE IF EXISTS roles');
+    await db.query(`
+      CREATE TABLE roles (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(50) NOT NULL UNIQUE COMMENT '角色标识: super_admin, admin, user',
+        display_name VARCHAR(100) NOT NULL COMMENT '显示名称',
+        description VARCHAR(255) DEFAULT NULL COMMENT '角色描述',
+        is_system TINYINT NOT NULL DEFAULT 0 COMMENT '是否系统内置: 0=否, 1=是',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表'
+    `);
+    console.log('roles 表创建成功！');
+
+    console.log('正在重建 permissions 表...');
+    await db.query(`
+      CREATE TABLE permissions (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100) NOT NULL UNIQUE COMMENT '权限标识: user:create, product:delete',
+        display_name VARCHAR(100) NOT NULL COMMENT '权限显示名称',
+        group_name VARCHAR(50) NOT NULL COMMENT '权限分组: 用户管理, 产品管理',
+        description VARCHAR(255) DEFAULT NULL COMMENT '权限描述',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表'
+    `);
+    console.log('permissions 表创建成功！');
+
+    console.log('正在重建 role_permissions 表...');
+    await db.query(`
+      CREATE TABLE role_permissions (
+        role_id INT NOT NULL COMMENT '角色ID',
+        permission_id INT NOT NULL COMMENT '权限ID',
+        PRIMARY KEY (role_id, permission_id),
+        FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+        FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色-权限关联表'
+    `);
+    console.log('role_permissions 表创建成功！');
+
+    // 插入默认角色
+    console.log('正在初始化默认角色...');
+    await db.query(`
+      INSERT INTO roles (name, display_name, description, is_system) VALUES
+      ('super_admin', '超级管理员', '拥有系统所有权限', 1),
+      ('admin', '管理员', '拥有部分管理权限', 1),
+      ('user', '普通用户', '基础权限', 1)
+    `);
+
+    // 插入默认权限
+    console.log('正在初始化默认权限...');
+    await db.query(`
+      INSERT INTO permissions (name, display_name, group_name) VALUES
+      ('user:list', '查看用户列表', '用户管理'),
+      ('user:create', '创建用户', '用户管理'),
+      ('user:edit', '编辑用户', '用户管理'),
+      ('user:delete', '删除用户', '用户管理'),
+      ('user:status', '启用/停用用户', '用户管理'),
+      ('user:role', '管理角色权限', '用户管理'),
+      ('product:list', '查看产品列表', '产品管理'),
+      ('product:create', '新增产品', '产品管理'),
+      ('product:edit', '编辑产品', '产品管理'),
+      ('product:delete', '删除产品', '产品管理'),
+      ('product:view', '查看产品详情', '产品管理')
+    `);
+
+    // 超级管理员拥有所有权限
+    await db.query(`
+      INSERT INTO role_permissions (role_id, permission_id)
+      SELECT (SELECT id FROM roles WHERE name = 'super_admin'), id FROM permissions
+    `);
+
+    // 管理员默认权限
+    await db.query(`
+      INSERT INTO role_permissions (role_id, permission_id)
+      SELECT (SELECT id FROM roles WHERE name = 'admin'), id FROM permissions
+      WHERE name IN ('user:list', 'user:create', 'user:edit',
+                     'product:list', 'product:create', 'product:edit', 'product:view')
+    `);
+
+    // 普通用户默认权限
+    await db.query(`
+      INSERT INTO role_permissions (role_id, permission_id)
+      SELECT (SELECT id FROM roles WHERE name = 'user'), id FROM permissions
+      WHERE name IN ('product:list', 'product:view')
+    `);
+    console.log('默认角色和权限初始化完成！');
+
     console.log('正在重建 products 表...');
     await db.query('DROP TABLE IF EXISTS products');
     await db.query(`

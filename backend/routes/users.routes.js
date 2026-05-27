@@ -11,6 +11,9 @@ router.post('/login', userController.login);
 // 获取当前登录用户信息
 router.get('/me', verifyToken, userController.getCurrentUser);
 
+// 更新当前登录用户个人资料（任何登录用户均可）
+router.put('/me/profile', verifyToken, userController.updateProfile);
+
 // 获取用户列表
 router.get('/', verifyToken, userController.getUsers);
 
@@ -24,7 +27,7 @@ router.post('/', verifyToken, requireRole('super_admin'), userController.createU
 router.put('/:id', verifyToken, userController.updateUser);
 
 // 切换用户状态（启用/停用）
-router.put('/:id/status', verifyToken, userController.updateUser);
+router.put('/:id/status', verifyToken, userController.toggleUserStatus);
 
 // 删除用户（仅超级管理员）
 router.delete('/:id', verifyToken, requireRole('super_admin'), userController.deleteUser);

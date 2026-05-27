@@ -15,7 +15,7 @@
       >
         <el-menu-item index="/homeView">首页</el-menu-item>
         <el-menu-item index="/products">产品管理</el-menu-item>
-        <el-menu-item index="/users">用户管理</el-menu-item>
+        <el-menu-item v-if="userInfo.role === 'super_admin'" index="/users">用户管理</el-menu-item>
       </el-menu>
     </div>
 
@@ -30,27 +30,20 @@
           </div>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
               <el-dropdown-item command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
       </div>
 
-      <div v-if="tabs.length > 0" class="tabs-nav">
-        <div class="tabs-inner" ref="tabsInnerRef">
-          <div
-            v-for="tab in tabs"
-            :key="tab.path"
-            class="tab-item"
-            :class="{ active: tab.path === $route.path }"
-            @click="switchTab(tab.path)"
-          >
-            <span class="tab-label">{{ tab.label }}</span>
-            <el-icon v-if="tab.closable" class="tab-close" @click.stop="closeTab(tab.path)">
-              <Close />
-            </el-icon>
-          </div>
-        </div>
+      <div class="breadcrumb-nav">
+        <template v-for="(item, index) in breadcrumbList" :key="index">
+          <span class="breadcrumb-item" :class="{ 'is-link': item.path && index < breadcrumbList.length - 1 }" @click="item.path ? router.push(item.path) : undefined">
+            {{ item.label }}
+          </span>
+          <span v-if="index < breadcrumbList.length - 1" class="breadcrumb-sep">/</span>
+        </template>
       </div>
 
       <div class="main-content">
@@ -61,10 +54,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Close } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -75,86 +67,48 @@ const userInfo = ref({
   role: ''
 })
 
-interface Tab {
+const parentMenuMap: Record<string, { name: string; path: string }> = {
+  '/creatProduct': { name: '产品管理', path: '/products' },
+  '/viewProduct': { name: '产品管理', path: '/products' },
+  '/products': { name: '产品管理', path: '/products' },
+  '/users/create': { name: '用户管理', path: '/users' },
+  '/users': { name: '用户管理', path: '/users' }
+}
+
+interface BreadcrumbItem {
   label: string
-  path: string
-  closable: boolean
+  path?: string
 }
 
-const tabs = ref<Tab[]>([])
-
-const labelMap: Record<string, string> = {
-  '/homeView': '首页',
-  '/products': '产品列表',
-  '/creatProduct': '添加产品',
-  '/users': '用户列表',
-  '/users/create': '添加用户'
-}
-
-const saveTabs = () => {
-  const paths = tabs.value.filter(t => t.closable).map(t => t.path)
-  localStorage.setItem('savedTabs', JSON.stringify(paths))
-}
-
-const restoreTabs = () => {
-  const raw = localStorage.getItem('savedTabs')
-  if (!raw) return
-  try {
-    const paths: string[] = JSON.parse(raw)
-    paths.forEach((p) => {
-      const label = labelMap[p]
-      if (label) {
-        tabs.value.push({ label, path: p, closable: true })
-      }
-    })
-  } catch { }
-}
-
-const addTab = (path: string) => {
-  const label = labelMap[path]
-  if (!label) return
-  const exists = tabs.value.some(t => t.path === path)
-  if (!exists) {
-    tabs.value.push({
-      label,
-      path,
-      closable: path !== '/homeView'
-    })
-    saveTabs()
+const getPageTitle = () => {
+  const title = (route.meta?.title as string) || ''
+  if (route.query.id) {
+    if (route.path === '/creatProduct') return '编辑产品'
+    if (route.path === '/users/create') return '编辑用户'
   }
+  return title
 }
 
-const switchTab = (path: string) => {
-  if (path !== route.path) {
-    router.push(path)
+const breadcrumbList = computed<BreadcrumbItem[]>(() => {
+  const title = getPageTitle()
+  const list: BreadcrumbItem[] = []
+
+  const parent = parentMenuMap[route.path]
+  if (parent) {
+    if (title && title !== parent.name) {
+      list.push({ label: parent.name, path: parent.path })
+      list.push({ label: title })
+    } else {
+      list.push({ label: parent.name })
+    }
+  } else {
+    list.push({ label: title })
   }
-}
 
-const closeTab = (path: string) => {
-  const idx = tabs.value.findIndex(t => t.path === path)
-  if (idx === -1) return
-
-  const isCurrent = path === route.path
-  tabs.value.splice(idx, 1)
-  saveTabs()
-
-  if (isCurrent && tabs.value.length > 0) {
-    const targetIdx = Math.min(idx, tabs.value.length - 1)
-    router.push(tabs.value[targetIdx].path)
-  }
-}
-
-watch(
-  () => route.path,
-  (path) => {
-    addTab(path)
-  }
-)
+  return list
+})
 
 onMounted(() => {
-  restoreTabs()
-  addTab(route.path)
-
   const stored = localStorage.getItem('userInfo')
   if (stored) {
     try {
@@ -166,7 +120,9 @@ onMounted(() => {
 })
 
 const handleDropdownCommand = (command: string) => {
-  if (command === 'logout') {
+  if (command === 'profile') {
+    router.push('/profile')
+  } else if (command === 'logout') {
     ElMessageBox.confirm(
       '确定要退出登录吗？',
       '退出确认',
@@ -178,7 +134,6 @@ const handleDropdownCommand = (command: string) => {
     ).then(() => {
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
-      localStorage.removeItem('savedTabs')
       router.push('/login')
       ElMessage.success('已退出登录')
     }).catch(() => {})
@@ -277,85 +232,42 @@ const handleDropdownCommand = (command: string) => {
   }
 }
 
-.tabs-nav {
-  background: #f5f7fa;
-  border-bottom: 1px solid #e4e7ed;
+.breadcrumb-nav {
+  background: #fff;
+  border-bottom: 1px solid #ebeef5;
   flex-shrink: 0;
-  overflow: hidden;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 
-  .tabs-inner {
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    overflow-x: auto;
+  .breadcrumb-item {
+    font-size: 14px;
+    color: #909399;
+    padding: 4px 0;
+    border-radius: 4px;
+    transition: color 0.2s;
 
-    &::-webkit-scrollbar {
-      height: 4px;
+    &.is-link {
+      color: #303133;
+      cursor: pointer;
+
+      &:hover {
+        color: #409EFF;
+      }
     }
 
-    &::-webkit-scrollbar-thumb {
-      background: #c0c4cc;
-      border-radius: 2px;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background: #909399;
+    &:not(.is-link) {
+      color: #303133;
+      font-weight: 600;
     }
   }
 
-  .tab-item {
-    display: flex;
-    align-items: center;
-    height: 34px;
-    padding: 0 12px;
-    margin: 10px 4px;
-    font-size: 13px;
-    color: #606266;
-    background: #fff;
-    border: 1px solid #e4e7ed;
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.2s;
-
-    &:hover {
-      color: #409EFF;
-      border-color: #c6e2ff;
-    }
-
-    &.active {
-      color: #fff;
-      background: #5babf2;
-      border-color: #5babf2;
-
-      .tab-close {
-        color: rgba(255, 255, 255, 0.8);
-
-        &:hover {
-          color: #fff;
-        }
-      }
-    }
-
-    .tab-label {
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tab-close {
-      margin-left: 6px;
-      font-size: 12px;
-      color: #c0c4cc;
-      transition: color 0.2s;
-      display: flex;
-      align-items: center;
-
-      &:hover {
-        color: #606266;
-      }
-    }
+  .breadcrumb-sep {
+    font-size: 12px;
+    color: #c0c4cc;
+    margin: 0 10px;
+    user-select: none;
   }
 }
 

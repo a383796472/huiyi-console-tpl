@@ -71,8 +71,11 @@
         <el-table-column prop="created_at" label="创建时间" min-width="140">
           <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" min-width="120">
+        <el-table-column fixed="right" label="操作" min-width="180">
           <template #default="{ row }">
+            <el-button link type="primary" size="small" @click="handleView(row.id)">
+              查看
+            </el-button>
             <el-button link type="primary" size="small" @click="handleEdit(row.id)">
               编辑
             </el-button>
@@ -142,6 +145,10 @@ const getStatusType = (status: string) => {
     '待定': 'info'
   }
   return map[status] || 'default'
+}
+
+const handleView = (id: number) => {
+  router.push(`/viewProduct?id=${id}`)
 }
 
 const handleEdit = (id: number) => {

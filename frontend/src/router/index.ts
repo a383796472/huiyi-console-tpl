@@ -31,6 +31,12 @@ const routes = [
         meta: { title: '新增产品', requiresAuth: true }
       },
       {
+        path: 'viewProduct',
+        name: 'ViewProduct',
+        component: () => import('../views/ProductList/viewProduct.vue'),
+        meta: { title: '产品详情', requiresAuth: true }
+      },
+      {
         path: 'users',
         name: 'Users',
         component: () => import('../views/users/index.vue'),

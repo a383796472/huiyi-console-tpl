@@ -18,6 +18,7 @@ interface CreateUserParams {
   email?: string
   phone?: string
   real_name?: string
+  department_id?: number | null
   role?: string
   status?: number
 }
@@ -28,6 +29,7 @@ interface UpdateUserParams {
   email?: string
   phone?: string
   real_name?: string
+  department_id?: number | null
   role?: string
   status?: number
 }
@@ -127,5 +129,12 @@ export const updateRolePermissions = (id: number | string, permissionIds: number
     url: `/api/roles/${id}/permissions`,
     method: 'PUT',
     data: { permissionIds }
+  })
+}
+
+export const getDepartments = () => {
+  return request({
+    url: '/api/departments',
+    method: 'GET'
   })
 }

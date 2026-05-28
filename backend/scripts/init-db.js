@@ -12,6 +12,7 @@ async function initDB() {
         email VARCHAR(100) DEFAULT NULL COMMENT '邮箱',
         phone VARCHAR(20) DEFAULT NULL COMMENT '手机号',
         real_name VARCHAR(50) DEFAULT NULL COMMENT '真实姓名',
+        department_id INT DEFAULT NULL COMMENT '部门ID',
         role VARCHAR(20) NOT NULL DEFAULT 'user' COMMENT '角色: super_admin, admin, user',
         status TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 1=启用, 0=禁用',
         last_login DATETIME DEFAULT NULL COMMENT '最后登录时间',
@@ -20,6 +21,31 @@ async function initDB() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表'
     `);
     console.log('users 表创建成功！');
+
+    console.log('正在重建 departments 表...');
+    await db.query('DROP TABLE IF EXISTS departments');
+    await db.query(`
+      CREATE TABLE departments (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100) NOT NULL UNIQUE COMMENT '部门名称',
+        parent_id INT DEFAULT NULL COMMENT '父部门ID',
+        sort_order INT NOT NULL DEFAULT 0 COMMENT '排序',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='部门表'
+    `);
+    console.log('departments 表创建成功！');
+
+    // 插入默认部门
+    await db.query(`
+      INSERT INTO departments (name, sort_order) VALUES
+      ('无部门', 0),
+      ('GR海外销售', 1),
+      ('GR国内品牌', 2),
+      ('GR国内销售', 3),
+      ('GR海外品牌', 4),
+      ('GR国内电商', 5)
+    `);
+    console.log('默认部门初始化完成！');
 
     console.log('正在重建 roles 表...');
     await db.query('DROP TABLE IF EXISTS role_permissions');
@@ -161,6 +187,8 @@ async function initDB() {
         is_counterfeit varchar(50) DEFAULT NULL COMMENT '是否为仿制品',
         customs_name varchar(255) DEFAULT NULL COMMENT '报关名称',
         customs_material varchar(255) DEFAULT NULL COMMENT '报关专用材质',
+        department_id INT DEFAULT NULL COMMENT '所属部门ID',
+        created_by INT DEFAULT NULL COMMENT '创建人ID',
         extra_info text DEFAULT NULL COMMENT '附加信息',
         accessory_info text DEFAULT NULL COMMENT '产品规格/配件',
         extra_images text DEFAULT NULL COMMENT '附加图片(JSON)',

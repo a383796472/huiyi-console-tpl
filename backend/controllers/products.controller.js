@@ -11,19 +11,36 @@ exports.getProducts = async (req, res) => {
     const conditions = [];
     const params = [];
 
+    // 非超级管理员只能看到自己部门的产品
+    if (req.user.role !== 'super_admin') {
+      const [userRows] = await db.query('SELECT department_id FROM users WHERE id = ?', [req.user.id]);
+      const userDeptId = userRows.length > 0 ? userRows[0].department_id : null;
+      if (userDeptId) {
+        conditions.push('p.department_id = ?');
+        params.push(userDeptId);
+      } else {
+        // 无部门用户看不到任何产品
+        return res.status(200).json({
+          code: 200,
+          message: '获取产品列表成功',
+          data: { list: [], total: 0, page, pageSize }
+        });
+      }
+    }
+
     if (keyword) {
-      conditions.push('(name LIKE ? OR SKU LIKE ?)');
+      conditions.push('(p.name LIKE ? OR p.SKU LIKE ?)');
       params.push(`%${keyword}%`, `%${keyword}%`);
     }
     if (salesStatus) {
-      conditions.push('sales_status = ?');
+      conditions.push('p.sales_status = ?');
       params.push(salesStatus);
     }
 
     const whereSql = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
-    const [[{ total }]] = await db.query(`SELECT COUNT(*) AS total FROM products ${whereSql}`, params);
-    const [rows] = await db.query(`SELECT * FROM products ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`, [...params, pageSize, offset]);
+    const [[{ total }]] = await db.query(`SELECT COUNT(*) AS total FROM products p ${whereSql}`, params);
+    const [rows] = await db.query(`SELECT p.*, d.name AS department_name FROM products p LEFT JOIN departments d ON p.department_id = d.id ${whereSql} ORDER BY p.created_at DESC LIMIT ? OFFSET ?`, [...params, pageSize, offset]);
 
     res.status(200).json({
       code: 200,
@@ -51,6 +68,16 @@ exports.getProductById = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ code: 404, message: '未找到该产品' });
     }
+
+    // 非超管需校验产品所属部门
+    if (req.user.role !== 'super_admin') {
+      const [userRows] = await db.query('SELECT department_id FROM users WHERE id = ?', [req.user.id]);
+      const userDeptId = userRows[0]?.department_id;
+      if (rows[0].department_id !== userDeptId) {
+        return res.status(403).json({ code: 403, message: '无权查看该产品' });
+      }
+    }
+
     res.status(200).json({
       code: 200,
       message: '获取产品详情成功',
@@ -82,6 +109,9 @@ exports.addProduct = async (req, res) => {
       return res.status(400).json({ code: 400, message: '产品名称和SKU编号是必填项' });
     }
 
+    const [userRows] = await db.query('SELECT department_id FROM users WHERE id = ?', [req.user.id]);
+    const deptId = userRows.length > 0 ? userRows[0].department_id : null;
+
     const sql = `INSERT INTO products (
       name, english_name, product_code, SKU, category_l1, category_l2,
       product_type, ean_code, us_barcode, compatible_vehicles,
@@ -92,9 +122,10 @@ exports.addProduct = async (req, res) => {
       declare_category, hs_code, declare_name_cn, declare_name_en, declare_value_usd,
       material_cn, material_en, usage_cn, usage_en,
       has_battery, has_special_goods, has_magnetism, has_non_liquid_cosmetics, is_counterfeit,
-      customs_name, customs_material, extra_info, accessory_info, extra_images, selling_points, selling_detail,
+      customs_name, customs_material, department_id, created_by,
+      extra_info, accessory_info, extra_images, selling_points, selling_detail,
       image, description
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const params = [
       name, englishName || null, productCode || null, SKU, categoryL1 || null, categoryL2 || null,
@@ -106,7 +137,8 @@ exports.addProduct = async (req, res) => {
       declareCategory || null, hsCode || null, declareNameCn || null, declareNameEn || null, declareValueUsd || null,
       materialCn || null, materialEn || null, usageCn || null, usageEn || null,
       hasBattery || null, hasSpecialGoods || null, hasMagnetism || null, hasNonLiquidCosmetics || null, isCounterfeit || null,
-      customsName || null, customsMaterial || null, extraInfo || null, accessoryInfo || null, extraImages || null, sellingPoints || null, sellingDetail || null,
+      customsName || null, customsMaterial || null, deptId, req.user.id,
+      extraInfo || null, accessoryInfo || null, extraImages || null, sellingPoints || null, sellingDetail || null,
       image || null, desc || null
     ];
 
@@ -128,6 +160,16 @@ exports.updateProduct = async (req, res) => {
     const id = req.params.id;
     if (!id) {
       return res.status(400).json({ code: 400, message: '缺少产品ID' });
+    }
+
+    // 非超管需校验产品所属部门
+    if (req.user.role !== 'super_admin') {
+      const [check] = await db.query('SELECT department_id FROM products WHERE id = ?', [id]);
+      const [userRows] = await db.query('SELECT department_id FROM users WHERE id = ?', [req.user.id]);
+      const userDeptId = userRows[0]?.department_id;
+      if (check.length === 0 || check[0].department_id !== userDeptId) {
+        return res.status(403).json({ code: 403, message: '无权操作该产品' });
+      }
     }
 
     const {
@@ -192,6 +234,16 @@ exports.deleteProduct = async (req, res) => {
     const id = req.params.id;
     if (!id) {
       return res.status(400).json({ code: 400, message: '缺少产品 ID' });
+    }
+
+    // 非超管需校验产品所属部门
+    if (req.user.role !== 'super_admin') {
+      const [check] = await db.query('SELECT department_id FROM products WHERE id = ?', [id]);
+      const [userRows] = await db.query('SELECT department_id FROM users WHERE id = ?', [req.user.id]);
+      const userDeptId = userRows[0]?.department_id;
+      if (check.length === 0 || check[0].department_id !== userDeptId) {
+        return res.status(403).json({ code: 403, message: '无权操作该产品' });
+      }
     }
 
     const [result] = await db.query('DELETE FROM products WHERE id = ?', [id]);

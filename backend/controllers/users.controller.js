@@ -114,7 +114,11 @@ exports.getUsers = async (req, res) => {
       params
     );
     const [rows] = await db.query(
-      `SELECT id, username, email, phone, real_name, role, status, last_login, created_at, updated_at FROM users ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+      `SELECT u.id, u.username, u.email, u.phone, u.real_name, u.department_id, d.name AS department_name,
+              u.role, u.status, u.last_login, u.created_at, u.updated_at
+       FROM users u
+       LEFT JOIN departments d ON u.department_id = d.id
+       ${whereSql} ORDER BY u.created_at DESC LIMIT ? OFFSET ?`,
       [...params, pageSize, offset]
     );
 
@@ -138,7 +142,7 @@ exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await db.query(
-      'SELECT id, username, email, phone, real_name, role, status, last_login, created_at, updated_at FROM users WHERE id = ?',
+      'SELECT u.id, u.username, u.email, u.phone, u.real_name, u.department_id, u.role, u.status, u.last_login, u.created_at, u.updated_at FROM users u WHERE u.id = ?',
       [id]
     );
     if (rows.length === 0) {
@@ -153,10 +157,14 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, email, phone, real_name, role } = req.body;
+    const { username, password, email, phone, real_name, department_id, role } = req.body;
 
     if (!username || !password) {
       return res.status(400).json({ code: 400, message: '用户名和密码为必填项' });
+    }
+
+    if (!department_id) {
+      return res.status(400).json({ code: 400, message: '部门为必选项' });
     }
 
     const [existing] = await db.query('SELECT id FROM users WHERE username = ?', [username]);
@@ -180,14 +188,14 @@ exports.createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const [result] = await db.query(
-      'INSERT INTO users (username, password, email, phone, real_name, role, status) VALUES (?, ?, ?, ?, ?, ?, 1)',
-      [username, hashedPassword, email || null, phone || null, real_name || null, userRole]
+      'INSERT INTO users (username, password, email, phone, real_name, department_id, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+      [username, hashedPassword, email || null, phone || null, real_name || null, department_id || null, userRole]
     );
 
     res.status(201).json({
       code: 200,
       message: '用户创建成功',
-      data: { id: result.insertId, username, email: email || null, phone: phone || null, real_name: real_name || null, role: userRole }
+      data: { id: result.insertId, username, email: email || null, phone: phone || null, real_name: real_name || null, department_id: department_id || null, role: userRole }
     });
   } catch (error) {
     console.error('创建用户失败：', error);
@@ -262,7 +270,7 @@ exports.updateProfile = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, password, email, phone, real_name, role, status } = req.body;
+    const { username, password, email, phone, real_name, department_id, role, status } = req.body;
 
     const [existing] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
     if (existing.length === 0) {
@@ -280,7 +288,7 @@ exports.updateUser = async (req, res) => {
       updateFields.push('username = ?');
       updateParams.push(username);
     }
-    if (password !== undefined) {
+    if (password !== undefined && password !== '') {
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
       updateFields.push('password = ?');
       updateParams.push(hashedPassword);
@@ -296,6 +304,10 @@ exports.updateUser = async (req, res) => {
     if (real_name !== undefined) {
       updateFields.push('real_name = ?');
       updateParams.push(real_name);
+    }
+    if (department_id !== undefined) {
+      updateFields.push('department_id = ?');
+      updateParams.push(department_id || null);
     }
     if (role !== undefined) {
       const currentUser = existing[0];

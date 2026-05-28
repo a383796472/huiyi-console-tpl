@@ -102,6 +102,21 @@ router.beforeEach((to, _from, next) => {
     }
   }
 
+  // 新增/编辑产品仅超管和管理员可访问
+  if (to.path === '/creatProduct') {
+    try {
+      const raw = localStorage.getItem('userInfo')
+      const userInfo = raw ? JSON.parse(raw) : null
+      if (!userInfo || userInfo.role === 'user') {
+        next('/products')
+        return
+      }
+    } catch {
+      next('/products')
+      return
+    }
+  }
+
   if (to.path === '/login' && isAuthenticated) {
     next('/')
   } else {

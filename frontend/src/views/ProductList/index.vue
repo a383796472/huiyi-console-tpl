@@ -2,7 +2,7 @@
   <div class="container">
 
     <div class="search-area">
-      <el-button type="primary" @click="handleClick">
+      <el-button v-if="canManage" type="primary" @click="handleClick">
         <el-icon style="margin-right: 4px;"><Plus /></el-icon>
         添加产品
       </el-button>
@@ -56,6 +56,9 @@
         <el-table-column prop="product_type" label="产品类型" min-width="100">
           <template #default="{ row }">{{ row.product_type || '-' }}</template>
         </el-table-column>
+        <el-table-column v-if="isSuperAdmin" prop="department_name" label="所属部门" min-width="100">
+          <template #default="{ row }">{{ row.department_name || '-' }}</template>
+        </el-table-column>
         <el-table-column prop="spu" label="关联SPU" min-width="120">
           <template #default="{ row }">{{ row.spu || '-' }}</template>
         </el-table-column>
@@ -84,10 +87,10 @@
             <el-button link type="primary" size="small" @click="handleView(row.id)">
               查看
             </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row.id)">
+            <el-button v-if="canManage" link type="primary" size="small" @click="handleEdit(row.id)">
               编辑
             </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row.id)">
+            <el-button v-if="canManage" link type="danger" size="small" @click="handleDelete(row.id)">
               删除
             </el-button>
           </template>
@@ -123,6 +126,17 @@ const searchType = ref('all')
 const total = ref(0)
 const pageSize = ref(10)
 const currentPage = ref(1)
+
+const isSuperAdmin = ref(false)
+const canManage = ref(false)
+try {
+  const stored = localStorage.getItem('userInfo')
+  if (stored) {
+    const info = JSON.parse(stored)
+    isSuperAdmin.value = info.role === 'super_admin'
+    canManage.value = info.role === 'super_admin' || info.role === 'admin'
+  }
+} catch {}
 const imgLoadedMap = reactive<Record<number, boolean>>({})
 
 const onImgError = (e: Event) => {

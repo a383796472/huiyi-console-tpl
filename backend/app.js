@@ -34,6 +34,10 @@ app.use('/api/roles', rolesRoutes);
 const exportRoutes = require('./routes/export.routes');
 app.use('/api/export', exportRoutes);
 
+// 挂载部门路由
+const departmentsRoutes = require('./routes/departments.routes');
+app.use('/api/departments', departmentsRoutes);
+
 app.listen(3000, () => {
   console.log('✅ 后端服务已运行在 http://localhost:3000');
 });

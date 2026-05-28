@@ -12,21 +12,33 @@
       </el-form-item>
 
       <!-- 密码（添加时显示，编辑时不显示） -->
-      <el-form-item v-if="!route.query.id" label="密码" prop="password" required>
+      <el-form-item label="密码" prop="password" :required="!route.query.id">
         <el-input 
           v-model="formData.password" 
           type="password" 
-          placeholder="请输入密码" 
+          :placeholder="route.query.id ? '留空则不修改密码' : '请输入密码'" 
         />
       </el-form-item>
 
-      <!-- 确认密码（添加时显示） -->
-      <el-form-item v-if="!route.query.id" label="确认密码" prop="confirmPassword" required>
+      <!-- 确认密码 -->
+      <el-form-item label="确认密码" prop="confirmPassword" :required="!route.query.id">
         <el-input 
           v-model="formData.confirmPassword" 
           type="password" 
-          placeholder="请再次输入密码" 
+          :placeholder="route.query.id ? '留空则不修改密码' : '请再次输入密码'" 
         />
+      </el-form-item>
+
+      <!-- 部门 -->
+      <el-form-item label="部门" prop="department_id" required>
+        <el-select v-model="formData.department_id" placeholder="请选择部门">
+          <el-option
+            v-for="dept in departmentList"
+            :key="dept.id"
+            :label="dept.name"
+            :value="dept.id"
+          ></el-option>
+        </el-select>
       </el-form-item>
 
       <!-- 邮箱 -->
@@ -56,7 +68,7 @@
 
       <!-- 角色 -->
       <el-form-item label="角色" prop="role">
-        <el-select v-model="formData.role" placeholder="请选择角色">
+        <el-select v-model="formData.role" placeholder="请选择角色" :disabled="currentUserRole !== 'super_admin'">
           <el-option v-if="currentUserRole === 'super_admin'" label="超级管理员" value="super_admin"></el-option>
           <el-option label="管理员" value="admin"></el-option>
           <el-option label="普通用户" value="user"></el-option>
@@ -86,12 +98,19 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getUserById, createUser, updateUser } from '@/api/user'
+import { getUserById, createUser, updateUser, getDepartments } from '@/api/user'
 
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
 const isSubmitting = ref(false)
+
+interface Department {
+  id: number
+  name: string
+}
+
+const departmentList = ref<Department[]>([])
 
 const currentUserRole = ref('user')
 try {
@@ -109,6 +128,7 @@ const formData = reactive({
   email: '',
   phone: '',
   real_name: '',
+  department_id: null as number | null,
   role: 'user',
   status: 1
 })
@@ -127,6 +147,7 @@ const fetchUserDetail = async () => {
       formData.email = user.email || ''
       formData.phone = user.phone || ''
       formData.real_name = user.real_name || ''
+      formData.department_id = user.department_id || null
       formData.role = user.role || 'user'
       formData.status = user.status === undefined ? 1 : user.status
     }
@@ -156,17 +177,28 @@ const handleSubmit = async () => {
     ElMessage.error('两次输入的密码不一致')
     return
   }
+
+  if (!formData.department_id) {
+    ElMessage.error('请选择部门')
+    return
+  }
   
   isSubmitting.value = true
   try {
     if (route.query.id) {
-      const submitData = {
+      const submitData: any = {
         username: formData.username,
         email: formData.email,
         phone: formData.phone,
         real_name: formData.real_name,
-        role: formData.role,
+        department_id: formData.department_id,
         status: formData.status
+      }
+      if (currentUserRole.value === 'super_admin') {
+        submitData.role = formData.role
+      }
+      if (formData.password) {
+        submitData.password = formData.password
       }
       const response = await updateUser(route.query.id as string, submitData)
       if (response && response.data && response.data.code === 200) {
@@ -176,14 +208,17 @@ const handleSubmit = async () => {
         ElMessage.error('操作失败，响应异常')
       }
     } else {
-      const submitData = {
+      const submitData: any = {
         username: formData.username,
         password: formData.password,
         email: formData.email,
         phone: formData.phone,
         real_name: formData.real_name,
-        role: formData.role,
+        department_id: formData.department_id,
         status: formData.status
+      }
+      if (currentUserRole.value === 'super_admin') {
+        submitData.role = formData.role
       }
       const response = await createUser(submitData)
       if (response && response.data && response.data.code === 200) {
@@ -207,10 +242,20 @@ const handleCancel = () => {
 }
 
 onMounted(() => {
+  fetchDepartments()
   if (route.query.id) {
     fetchUserDetail()
   }
 })
+
+const fetchDepartments = async () => {
+  try {
+    const res = await getDepartments()
+    if (res.data.code === 200 && res.data.data) {
+      departmentList.value = res.data.data
+    }
+  } catch {}
+}
 </script>
 
 <style lang="scss" scoped>

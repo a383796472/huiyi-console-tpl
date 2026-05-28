@@ -51,6 +51,9 @@
         <el-table-column prop="real_name" label="真实姓名" min-width="100">
           <template #default="{ row }">{{ row.real_name || '-' }}</template>
         </el-table-column>
+        <el-table-column prop="department_name" label="部门" min-width="100">
+          <template #default="{ row }">{{ row.department_name || '-' }}</template>
+        </el-table-column>
         <el-table-column prop="role" label="角色" min-width="100">
           <template #default="{ row }">
             <el-tag :type="getRoleType(row.role)">{{ getRoleText(row.role) }}</el-tag>

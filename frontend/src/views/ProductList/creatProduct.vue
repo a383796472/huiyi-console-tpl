@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="create-product" v-loading="loading">
 
     <div class="form-section">
@@ -136,6 +136,12 @@
         <div class="item-label">参考链接</div>
         <div class="item-input">
           <el-input v-model="formData.reference_link" placeholder="请输入参考链接" />
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="item-label">对标竞品</div>
+        <div class="item-input">
+          <el-input v-model="formData.competitor_product" placeholder="请输入对标竞品" />
         </div>
       </div>
     </div>
@@ -546,6 +552,7 @@ const formData = reactive({
   acquisition_method: '',
   color: '',
   reference_link: '',
+  competitor_product: '',
   net_weight: '',
   gross_weight: '',
   whole_box_weight: '',
@@ -666,6 +673,7 @@ const handleSubmit = async () => {
       acquisitionMethod: formData.acquisition_method,
       color: formData.color,
       referenceLink: formData.reference_link,
+      competitorProduct: formData.competitor_product,
       netWeight: formData.net_weight,
       grossWeight: formData.gross_weight,
       wholeBoxWeight: formData.whole_box_weight,
@@ -741,12 +749,12 @@ const handleSubmit = async () => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: #0f172a;
   display: flex;
   align-items: center;
   height: 36px;
   padding: 0 0 0 12px;
-  border-left: 3px solid #409EFF;
+  border-left: 3px solid #3b82f6;
   margin-bottom: 16px;
 }
 
@@ -770,7 +778,7 @@ const handleSubmit = async () => {
   border-radius: 4px;
   overflow: hidden;
   position: relative;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #e2e8f0;
 
   img {
     width: 100%;
@@ -851,31 +859,31 @@ const handleSubmit = async () => {
 }
 
 .extra-tabs {
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
 
   .extra-tabs-nav {
     display: flex;
-    background: #f5f7fa;
-    border-bottom: 1px solid #e4e7ed;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
 
     .extra-tab-item {
       padding: 0 20px;
       height: 36px;
       line-height: 36px;
       font-size: 14px;
-      color: #606266;
+      color: #64748b;
       cursor: pointer;
       position: relative;
       transition: all 0.2s;
 
       &:hover {
-        color: #409EFF;
+        color: #3b82f6;
       }
 
       &.active {
-        color: #409EFF;
+        color: #3b82f6;
         font-weight: 600;
         background: #fff;
 
@@ -886,7 +894,7 @@ const handleSubmit = async () => {
           left: 0;
           right: 0;
           height: 2px;
-          background: #409EFF;
+          background: #3b82f6;
         }
       }
     }

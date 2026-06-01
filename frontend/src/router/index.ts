@@ -54,6 +54,12 @@ const routes = [
         component: () => import('../views/profile/index.vue'),
         meta: { title: '个人中心', requiresAuth: true }
       },
+      {
+        path: 'inventory',
+        name: 'Inventory',
+        component: () => import('../views/inventory/index.vue'),
+        meta: { title: '库存管理', requiresAuth: true }
+      },
     ]
   },
   {

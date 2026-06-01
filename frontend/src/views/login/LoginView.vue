@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="login-container">
     <div class="login-card">
       <div class="login-left">
@@ -136,41 +136,62 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #4a5c72 0%, #35485d 100%);
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.18), transparent 50%),
+    radial-gradient(ellipse at 75% 20%, rgba(96, 165, 250, 0.12), transparent 50%),
+    linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
 }
 
 .login-card {
   display: flex;
-  width: 800px;
-  height: 480px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 880px;
+  height: 520px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.08),
+    0 40px 80px rgba(15, 23, 42, 0.24);
   overflow: hidden;
+  backdrop-filter: blur(20px);
 }
 
 .login-left {
-  width: 380px;
-  background: linear-gradient(135deg, #5a7fa0 0%, #6d9bc5 100%);
+  width: 400px;
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.4), transparent 60%),
+    linear-gradient(160deg, #1e293b 0%, #334155 70%, #475569 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(96, 165, 250, 0.2), transparent 50%);
+  }
 
   .left-content {
     text-align: center;
-    padding: 40px;
+    padding: 48px;
+    position: relative;
+    z-index: 1;
 
     .left-logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 24px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 28px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 12px;
+      padding: 14px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 
       img {
         width: 100%;
@@ -180,15 +201,16 @@ const handleLogin = async () => {
     }
 
     .left-title {
-      font-size: 22px;
-      font-weight: 600;
+      font-size: 24px;
+      font-weight: 700;
       color: #fff;
-      margin: 0 0 12px;
+      margin: 0 0 10px;
+      letter-spacing: 1px;
     }
 
     .left-desc {
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.7);
       margin: 0;
       line-height: 1.6;
     }
@@ -200,14 +222,22 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #fff;
 
   .right-content {
     width: 320px;
 
     .right-title {
-      font-size: 24px;
-      font-weight: 600;
-      color: #303133;
+      font-size: 26px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .right-subtitle {
+      font-size: 14px;
+      color: #94a3b8;
       margin: 0 0 36px;
     }
   }
@@ -215,37 +245,50 @@ const handleLogin = async () => {
 
 .login-form {
   :deep(.el-form-item) {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   :deep(.el-input__wrapper) {
-    border-radius: 8px;
-    box-shadow: 0 0 0 1px #dcdfe6 inset;
-    transition: box-shadow 0.2s;
+    border-radius: 14px;
+    padding: 4px 14px;
+    box-shadow: 0 0 0 1px #e2e8f0 inset;
+    transition: all 0.2s;
+    background: #f8fafc;
 
     &:hover {
-      box-shadow: 0 0 0 1px #409EFF inset;
+      box-shadow: 0 0 0 1px #60a5fa inset;
+      background: #fff;
     }
 
     &.is-focus {
-      box-shadow: 0 0 0 1px #409EFF inset;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) inset;
+      background: #fff;
     }
   }
 
   :deep(.el-input__prefix) {
     .el-input__icon {
       font-size: 18px;
-      color: #909399;
+      color: #94a3b8;
     }
   }
 
   .login-btn {
     width: 100%;
-    height: 44px;
-    border-radius: 8px;
+    height: 48px;
+    border-radius: 14px;
     font-size: 16px;
     letter-spacing: 2px;
-    margin-top: 4px;
+    margin-top: 8px;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border: none;
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(59, 130, 246, 0.4);
+    }
   }
 }
 </style>

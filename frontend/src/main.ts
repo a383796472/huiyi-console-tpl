@@ -1,8 +1,9 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import ElementPlus from 'element-plus' // 引入 Element Plus
-import 'element-plus/dist/index.css' // 引入 Element Plus 的样式
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import './style/element-theme.css'
 
 const app = createApp(App)
 

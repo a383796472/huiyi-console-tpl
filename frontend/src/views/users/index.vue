@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="container">
 
     <!-- 搜索区域 -->
@@ -75,20 +75,11 @@
         <!-- 操作列 -->
         <el-table-column fixed="right" label="操作" min-width="200">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleEdit(row.id)">
-              编辑
-            </el-button>
-            <el-button 
-              link 
-              :type="row.status === 1 ? 'warning' : 'success'" 
-              size="small" 
-              @click="handleToggleStatus(row)"
-            >
+            <span class="op-link" @click="handleEdit(row.id)">编辑</span>
+            <span class="op-link" :class="row.status === 1 ? 'op-link--warning' : 'op-link--success'" @click="handleToggleStatus(row)">
               {{ row.status === 1 ? '停用' : '启用' }}
-            </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row.id)">
-              删除
-            </el-button>
+            </span>
+            <span class="op-link op-link--danger" @click="handleDelete(row.id)">删除</span>
           </template>
         </el-table-column>
       </el-table>
@@ -293,22 +284,27 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .container {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  height: calc(100vh - 120px);
+  background: #fff;
+  padding: 24px;
+  border-radius: 18px;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 20px 40px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .list-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 
   h2 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #303133;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
     margin: 0;
+    letter-spacing: -0.3px;
   }
 }
 
@@ -316,18 +312,82 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 
   .search-type-select {
     width: 130px;
-
-    :deep(.el-input__wrapper) {
-      border-radius: 4px;
-    }
   }
 
   .search-input {
     width: 300px;
+  }
+
+  :deep(.el-button--primary) {
+    border-radius: 8px;
+    height: 34px;
+    padding: 0 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border: none;
+    box-shadow: 0 8px 18px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  :deep(.el-input-group) {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px #e2e8f0;
+    transition: box-shadow 0.2s;
+
+    &:hover,
+    &:focus-within {
+      box-shadow: 0 0 0 1px #60a5fa;
+    }
+
+    .el-input__wrapper {
+      border-radius: 0;
+      box-shadow: none !important;
+    }
+
+    .el-input-group__append {
+      background: #f1f5f9;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0 18px;
+
+      .el-button {
+        border: none;
+        background: transparent;
+        color: #64748b;
+        padding: 0;
+        height: 100%;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+
+        &:hover {
+          color: #3b82f6;
+          background: transparent;
+        }
+      }
+    }
+  }
+
+  :deep(.el-select .el-input__wrapper) {
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px #e2e8f0 inset;
+    transition: all 0.2s;
+
+    &:hover {
+      box-shadow: 0 0 0 1px #60a5fa inset;
+    }
   }
 }
 
@@ -338,11 +398,53 @@ onMounted(() => {
   overflow-x: auto;
 
   :deep(.el-table) {
-    width: 100%;
-    .el-table__header {
-      th {
-        font-weight: bold;
-      }
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+
+    th.el-table__cell {
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    td.el-table__cell {
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .el-table__row:hover > td {
+      background: #f8fafc;
+    }
+
+    .el-tag {
+      border-radius: 8px;
+      padding: 0 10px;
+      font-weight: 600;
+    }
+
+    .op-link {
+      font-weight: 400;
+      cursor: pointer;
+      color: #3b82f6;
+      margin-right: 12px;
+      &:hover { color: #2563eb !important; }
+      &--success { color: #10b981; &:hover { color: #059669 !important; } }
+      &--warning { color: #f59e0b; &:hover { color: #d97706 !important; } }
+      &--danger { color: #ef4444; &:hover { color: #dc2626 !important; } }
+    }
+  }
+
+  :deep(.el-pagination) {
+    .el-pager li {
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .btn-prev, .btn-next {
+      border-radius: 10px;
     }
   }
 
@@ -351,7 +453,7 @@ onMounted(() => {
     justify-content: center;
     margin-top: auto;
     margin-bottom: 0;
-    padding-top: 16px;
+    padding-top: 20px;
   }
 }
 </style>

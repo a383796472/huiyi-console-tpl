@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="view-product" v-loading="loading">
 
     <div class="form-section">
@@ -394,12 +394,12 @@ onMounted(() => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: #0f172a;
   display: flex;
   align-items: center;
   height: 36px;
   padding: 0 0 0 12px;
-  border-left: 3px solid #409EFF;
+  border-left: 3px solid #3b82f6;
   margin-bottom: 16px;
 }
 
@@ -466,31 +466,31 @@ onMounted(() => {
 }
 
 .extra-tabs {
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
 
   .extra-tabs-nav {
     display: flex;
-    background: #f5f7fa;
-    border-bottom: 1px solid #e4e7ed;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
 
     .extra-tab-item {
       padding: 0 20px;
       height: 36px;
       line-height: 36px;
       font-size: 14px;
-      color: #606266;
+      color: #64748b;
       cursor: pointer;
       position: relative;
       transition: all 0.2s;
 
       &:hover {
-        color: #409EFF;
+        color: #3b82f6;
       }
 
       &.active {
-        color: #409EFF;
+        color: #3b82f6;
         font-weight: 600;
         background: #fff;
 
@@ -501,7 +501,7 @@ onMounted(() => {
           left: 0;
           right: 0;
           height: 2px;
-          background: #409EFF;
+          background: #3b82f6;
         }
       }
     }
@@ -532,7 +532,7 @@ onMounted(() => {
   height: 80px;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #e2e8f0;
 
   img {
     width: 100%;

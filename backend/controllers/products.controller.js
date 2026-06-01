@@ -125,10 +125,17 @@ exports.addProduct = async (req, res) => {
       customs_name, customs_material, department_id, created_by,
       extra_info, accessory_info, extra_images, selling_points, selling_detail,
       image, description
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    ) VALUES (
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      ?, ?, ?, ?, ?
+    )`;
 
     const params = [
-      name, englishName || null, productCode || null, SKU, categoryL1 || null, categoryL2 || null,
+      name || null, englishName || null, productCode || null, SKU || null, categoryL1 || null, categoryL2 || null,
       productType || null, eanCode || null, usBarcode || null, compatibleVehicles || null,
       salesStatus || null, costPriceRmb || null, retailPriceUsd || null, retailPriceEur || null, retailPriceRmb || null,
       certification || null, patent || null, acquisitionMethod || null, color || null, referenceLink || null,

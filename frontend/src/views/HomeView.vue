@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="home-container">
     <!-- 页面标题 -->
     <div class="page-header">
@@ -52,8 +52,7 @@
         <div class="stat-icon update-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="16 20 16 14 22 14"></polyline>
-            <path d="M20.49 9H15V3.51A2.5 2.5 0 0 0 12.99 2h-1.5A2.5 2.5 0 0 0 9 3.51V9H3.51A2.5 2.5 0 0 0 2 11.51v1.5A2.5 2.5 0 0 0 3.51 16H9v5.49A2.5 2.5 0 0 0 11.51 24h1.5a2.5 2.5 0 0 0 2.5-2.51V16h5.49A2.5 2.5 0 0 0 24 13.51v-1.5A2.5 2.5 0 0 0 21.49 9z"></path>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
         </div>
         <div class="stat-info">
@@ -124,35 +123,35 @@
             <div class="bar-item">
               <div class="bar-label">配件</div>
               <div class="bar-container">
-                <div class="bar" style="height: 80%; background-color: #409EFF;"></div>
+                <div class="bar" style="height: 80%; background-color: #3b82f6;"></div>
               </div>
               <div class="bar-value">42</div>
             </div>
             <div class="bar-item">
               <div class="bar-label">工具</div>
               <div class="bar-container">
-                <div class="bar" style="height: 65%; background-color: #67C23A;"></div>
+                <div class="bar" style="height: 65%; background-color: #10b981;"></div>
               </div>
               <div class="bar-value">33</div>
             </div>
             <div class="bar-item">
               <div class="bar-label">原料</div>
               <div class="bar-container">
-                <div class="bar" style="height: 45%; background-color: #E6A23C;"></div>
+                <div class="bar" style="height: 45%; background-color: #f59e0b;"></div>
               </div>
               <div class="bar-value">23</div>
             </div>
             <div class="bar-item">
               <div class="bar-label">设备</div>
               <div class="bar-container">
-                <div class="bar" style="height: 30%; background-color: #F56C6C;"></div>
+                <div class="bar" style="height: 30%; background-color: #ef4444;"></div>
               </div>
               <div class="bar-value">15</div>
             </div>
             <div class="bar-item">
               <div class="bar-label">其他</div>
               <div class="bar-container">
-                <div class="bar" style="height: 20%; background-color: #909399;"></div>
+                <div class="bar" style="height: 20%; background-color: #64748b;"></div>
               </div>
               <div class="bar-value">10</div>
             </div>
@@ -174,17 +173,17 @@
           </div>
           <div class="pie-legend">
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #67C23A;"></span>
+              <span class="legend-color" style="background-color: #10b981;"></span>
               <span>有库存</span>
               <span class="legend-value">{{ inStockPercent }}%</span>
             </div>
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #E6A23C;"></span>
+              <span class="legend-color" style="background-color: #f59e0b;"></span>
               <span>库存不足</span>
               <span class="legend-value">{{ lowStockPercent }}%</span>
             </div>
             <div class="legend-item">
-              <span class="legend-color" style="background-color: #F56C6C;"></span>
+              <span class="legend-color" style="background-color: #ef4444;"></span>
               <span>无库存</span>
               <span class="legend-value">{{ noStockPercent }}%</span>
             </div>
@@ -304,95 +303,115 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .home-container {
-  padding: 20px;
-  background: #f5f7fa;
-  min-height: calc(100vh - 120px);
+  padding: 24px 0 0;
+  min-height: 100%;
 }
 
 .page-header {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #303133;
-    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
   }
   p {
     font-size: 14px;
-    color: #909399;
+    color: #64748b;
     margin: 0;
   }
 }
 
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .stat-card {
   background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 18px;
+  padding: 24px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 20px 40px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  transition: all 0.25s ease;
+  cursor: default;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 4px 8px rgba(15, 23, 42, 0.06),
+      0 24px 48px rgba(15, 23, 42, 0.08);
+  }
 }
 
 .stat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 16px;
-  
+  margin-right: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+
   &.products-icon {
-    background: linear-gradient(135deg, #409EFF 0%, #66B1FF 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
     color: #fff;
   }
   &.category-icon {
-    background: linear-gradient(135deg, #67C23A 0%, #85CE61 100%);
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     color: #fff;
   }
   &.stock-icon {
-    background: linear-gradient(135deg, #E6A23C 0%, #F0C78A 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
     color: #fff;
   }
   &.update-icon {
-    background: linear-gradient(135deg, #F56C6C 0%, #F89898 100%);
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
     color: #fff;
   }
 }
 
 .stat-info {
   .stat-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: #303133;
-    margin-bottom: 4px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+    letter-spacing: -0.5px;
   }
   .stat-label {
-    font-size: 14px;
-    color: #909399;
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 500;
   }
 }
 
 .quick-actions {
   background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 28px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 20px 40px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .section-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0 0 16px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 18px 0;
+  letter-spacing: -0.3px;
 }
 
 .action-buttons {
@@ -402,30 +421,36 @@ onMounted(() => {
 
 .recent-products {
   background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 28px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 20px 40px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .charts-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
 .chart-card {
   background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  padding: 22px 24px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 20px 40px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .chart-placeholder {
@@ -437,7 +462,7 @@ onMounted(() => {
 
 .chart-bars {
   display: flex;
-  gap: 24px;
+  gap: 28px;
   align-items: flex-end;
   height: 160px;
 }
@@ -451,15 +476,16 @@ onMounted(() => {
 
 .bar-label {
   font-size: 12px;
-  color: #909399;
+  color: #94a3b8;
   margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .bar-container {
-  width: 32px;
+  width: 36px;
   height: 120px;
-  background: #f2f6fc;
-  border-radius: 4px;
+  background: #f1f5f9;
+  border-radius: 8px;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
@@ -467,14 +493,14 @@ onMounted(() => {
 
 .bar {
   width: 100%;
-  border-radius: 4px;
-  transition: height 0.3s ease;
+  border-radius: 8px;
+  transition: height 0.4s ease;
 }
 
 .bar-value {
   font-size: 12px;
-  color: #303133;
-  font-weight: 500;
+  color: #334155;
+  font-weight: 600;
   margin-top: 8px;
 }
 
@@ -484,11 +510,12 @@ onMounted(() => {
   height: 140px;
   border-radius: 50%;
   background: conic-gradient(
-    #67C23A 0deg 234deg,
-    #E6A23C 234deg 324deg,
-    #F56C6C 324deg 360deg
+    #10b981 0deg 234deg,
+    #f59e0b 234deg 324deg,
+    #ef4444 324deg 360deg
   );
   flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
 }
 
 .pie-center {
@@ -508,13 +535,14 @@ onMounted(() => {
 
 .pie-value {
   font-size: 20px;
-  font-weight: 600;
-  color: #67C23A;
+  font-weight: 700;
+  color: #10b981;
 }
 
 .pie-label {
-  font-size: 12px;
-  color: #909399;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
 .pie-legend {
@@ -529,17 +557,18 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #606266;
-  
+  color: #475569;
+
   .legend-color {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
   }
-  
+
   .legend-value {
     margin-left: auto;
-    font-weight: 500;
+    font-weight: 600;
+    color: #0f172a;
   }
 }
 </style>

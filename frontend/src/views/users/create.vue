@@ -263,7 +263,7 @@ const fetchDepartments = async () => {
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  min-height: calc(100vh - 120px);
+  min-height: 100%;
 }
 
 .user-header {
@@ -272,7 +272,7 @@ const fetchDepartments = async () => {
   h2 {
     font-size: 18px;
     font-weight: 600;
-    color: #303133;
+    color: #0f172a;
     margin: 0;
   }
 }

@@ -2,16 +2,14 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'a88953746',
-    database: 'huiyi_test',
-    port: 3306,
+    host: process.env.DB_HOST || '127.0.0.1',
+    user: process.env.DB_USER || 'console-backend',
+    password: process.env.DB_PASSWORD || '76NCneXiAGBXYSSy',
+    database: process.env.DB_NAME || 'console-backend',
+    port: parseInt(process.env.DB_PORT || '3306'),
     connectionLimit: 20,
     waitForConnections: true,
     queueLimit: 0,
-    acquireTimeout: 30000,
-    timeout: 30000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
     charset: 'utf8mb4',

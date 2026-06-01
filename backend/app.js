@@ -16,9 +16,6 @@ app.use(cors({
   exposedHeaders: ['Content-Length', 'Content-Disposition']
 }));
 
-// 显式处理预检请求，避免 204 No Content 无响应
-app.options('*', cors());
-
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -81,7 +78,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 // 404 处理
-app.use('/api/*', (_req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ code: 404, message: '接口不存在' });
 });
 

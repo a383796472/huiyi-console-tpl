@@ -8,7 +8,10 @@ module.exports = {
       max_memory_restart: '500M',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000
+        PORT: 3000,
+        DB_USER: 'console-backend',
+        DB_PASSWORD: '76NCneXiAGBXYSSy',
+        DB_NAME: 'console-backend'
       },
       error_file: './logs/err.log',
       out_file: './logs/out.log',

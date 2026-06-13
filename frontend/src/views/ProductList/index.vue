@@ -31,8 +31,7 @@
     </div>
 
     <div class="table-container">
-      <el-table :data="tableData" style="width: 100%" v-loading="loading" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="50" />
+      <el-table :data="tableData" style="width: 100%" v-loading="loading">
         <el-table-column label="图片" width="80" align="center">
           <template #default="{ row }">
             <div class="product-image-cell">
@@ -116,7 +115,6 @@ import request, { baseURL, downloadFile } from '@/utils/request'
 const router = useRouter()
 const loading = ref(false)
 const tableData = ref<any[]>([])
-const selectedRows = ref<any[]>([])
 const searchKeyword = ref('')
 const searchType = ref('all')
 const total = ref(0)
@@ -203,18 +201,10 @@ const handleClick = () => {
   router.push('/creatProduct')
 }
 
-const handleSelectionChange = (rows: any[]) => {
-  selectedRows.value = rows
-}
-
 const handleExport = async () => {
-  const exportIds = selectedRows.value.length > 0
-    ? selectedRows.value.map((r: any) => r.id).join(',')
-    : ''
   try {
-    const params = exportIds ? `?ids=${exportIds}` : ''
-    await downloadFile(`/api/export/products${params}`, '产品列表.xlsx')
-    ElMessage.success(selectedRows.value.length > 0 ? `已导出 ${selectedRows.value.length} 条产品` : '导出全部成功')
+    await downloadFile('/api/export/products', '产品列表.xlsx')
+    ElMessage.success('导出成功')
   } catch {
     ElMessage.error('导出失败')
   }
@@ -415,16 +405,6 @@ onMounted(() => {
     td.el-table__cell {
       color: #334155;
       font-size: 14px;
-    }
-
-    .el-checkbox__inner {
-      border: 2px solid #94a3b8;
-      border-radius: 6px;
-    }
-
-    .el-checkbox.is-checked .el-checkbox__inner {
-      border-color: #3b82f6;
-      background-color: #3b82f6;
     }
 
     .el-table__row:hover > td {

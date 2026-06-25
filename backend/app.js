@@ -16,30 +16,22 @@ app.use(cors({
   exposedHeaders: ['Content-Length', 'Content-Disposition']
 }));
 
+// OPTIONS 预检请求 —— 用中间件拦截所有 OPTIONS 请求
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// ===== 请求超时保护：30秒无响应则返回 504 =====
-app.use((_req, res, next) => {
-  res.setTimeout(30000, () => {
-    if (!res.headersSent) {
-      res.status(504).json({ code: 504, message: '请求超时，请稍后重试' });
-    }
-  });
-  next();
-});
-
-// 请求日志
-app.use((req, _res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
-  next();
-});
-
-// 管理员操作日志
-const logOperation = (req, action) => {
-  const user = req.user ? `${req.user.username}(${req.user.id})` : '未认证';
+app.use('/uploads', express.statireq.user.username}(${req.user.id})` : '未认证';
   console.log(`📝 [操作日志] ${user} ${action} ${req.method} ${req.originalUrl}`);
 };
 

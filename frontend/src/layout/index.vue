@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="layout-container">
     <div class="sidebar">
       <div class="sidebar-header">
@@ -15,7 +15,7 @@
       >
         <el-menu-item index="/homeView">首页</el-menu-item>
         <el-menu-item index="/products">产品管理</el-menu-item>
-        <el-menu-item index="/inventory">库存管理</el-menu-item>
+        <!-- <el-menu-item index="/inventory">库存管理</el-menu-item> -->
         <el-menu-item v-if="userInfo.role === 'super_admin'" index="/users">用户管理</el-menu-item>
       </el-menu>
     </div>

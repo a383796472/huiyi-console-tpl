@@ -64,6 +64,10 @@ app.use('/api/export', exportRoutes);
 const departmentsRoutes = require('./routes/departments.routes');
 app.use('/api/departments', departmentsRoutes);
 
+// 挂载抖店路由
+const douyinRoutes = require('./routes/douyin.routes');
+app.use('/api/douyin', douyinRoutes);
+
 // 健康检查
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

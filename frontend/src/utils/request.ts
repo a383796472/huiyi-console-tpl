@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
-export const baseURL = 'http://8.166.118.182'
+export const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
 const request = axios.create({
   baseURL,

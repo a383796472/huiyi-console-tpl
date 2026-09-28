@@ -11,11 +11,11 @@
         导出Excel
       </el-button>
       <el-select v-model="searchType" class="search-type-select">
-        <el-option label="按品名或SKU" value="all"></el-option>
+        <el-option label="按产品名称或SKU" value="all"></el-option>
       </el-select>
       <el-input
         v-model="searchKeyword"
-        placeholder="请输入品名或SKU搜索"
+        placeholder="请输入产品名称或SKU搜索"
         class="search-input"
         @keyup.enter="handleSearch"
       >
@@ -28,61 +28,232 @@
           </el-button>
         </template>
       </el-input>
+      <el-select v-model="filterSeries" placeholder="全部系列" clearable class="series-filter" @change="handleSearch">
+        <el-option label="骑行单品" value="骑行单品"></el-option>
+        <el-option label="MS塑胶减震" value="MS塑胶减震"></el-option>
+        <el-option label="MT套装" value="MT套装"></el-option>
+        <el-option label="MW套装" value="MW套装"></el-option>
+        <el-option label="M66手机壳" value="M66手机壳"></el-option>
+        <el-option label="ST06双向充款" value="ST06双向充款"></el-option>
+        <el-option label="CZ车载支架" value="CZ车载支架"></el-option>
+      </el-select>
     </div>
 
     <div class="table-container">
-      <el-table :data="tableData" style="width: 100%" v-loading="loading">
-        <el-table-column label="图片" width="80" align="center">
+      <el-table :data="tableData" style="width: 100%" height="calc(100vh - 230px)" v-loading="loading" stripe>
+        <el-table-column prop="sku" label="SKU" fixed="left" width="130">
+          <template #default="{ row }">{{ row.sku || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="产品图片" fixed="left" width="80" align="center">
           <template #default="{ row }">
             <div class="product-image-cell">
               <img
-                v-if="getThumbnail(row)"
+                v-if="getProductImage(row)"
                 :src="getImgSrc(row)"
                 @error="onImgError"
                 @load="onImgLoad"
                 :style="{ display: imgLoadedMap[row.id] !== false ? '' : 'none' }"
                 alt=""
               />
-              <div v-if="!getThumbnail(row) || imgLoadedMap[row.id] === false" class="no-image-placeholder">无图</div>
+              <div v-if="!getProductImage(row) || imgLoadedMap[row.id] === false" class="no-image-placeholder">无图</div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="品名" min-width="120">
-          <template #default="{ row }">{{ row.name || '-' }}</template>
+        <el-table-column prop="product_code" label="产品编号" fixed="left" width="110">
+          <template #default="{ row }">{{ row.product_code || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="SKU" label="SKU" min-width="120">
-          <template #default="{ row }">{{ row.SKU || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="product_type" label="产品类型" min-width="100">
-          <template #default="{ row }">{{ row.product_type || '-' }}</template>
-        </el-table-column>
-        <el-table-column v-if="isSuperAdmin" prop="department_name" label="所属部门" min-width="100">
-          <template #default="{ row }">{{ row.department_name || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="spu" label="关联SPU" min-width="120">
-          <template #default="{ row }">{{ row.spu || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="chinese_name" label="中文名称" min-width="120">
-          <template #default="{ row }">{{ row.chinese_name || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="dev_owner" label="开发负责人" min-width="100">
-          <template #default="{ row }">{{ row.dev_owner || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="sales_owner" label="销售负责人" min-width="100">
-          <template #default="{ row }">{{ row.sales_owner || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="sales_status" label="销售状态" min-width="100">
+        <el-table-column prop="series" label="系列" min-width="120">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.sales_status)">{{ row.sales_status || '-' }}</el-tag>
+            <el-tag :type="getSeriesTagType(row.series)">{{ row.series || '-' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="vehicle_category" label="车型类别" min-width="100">
-          <template #default="{ row }">{{ row.vehicle_category || '-' }}</template>
+        <el-table-column prop="series_code" label="系列编号" min-width="110">
+          <template #default="{ row }">{{ row.series_code || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" min-width="140">
-          <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
+        <el-table-column prop="product_status" label="产品状态" min-width="110">
+          <template #default="{ row }">
+            <el-tag :type="getStatusType(row.product_status)">{{ row.product_status || '-' }}</el-tag>
+          </template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" min-width="180">
+        <el-table-column prop="ean_code" label="EAN码" min-width="130">
+          <template #default="{ row }">{{ row.ean_code || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="us_barcode" label="美国条形码编号" min-width="150">
+          <template #default="{ row }">{{ row.us_barcode || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="hs_code" label="海关编码" min-width="120">
+          <template #default="{ row }">{{ row.hs_code || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="product_name" label="产品名称" min-width="140" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.product_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.product_name || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="english_name" label="英文产品名称" min-width="140" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.english_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.english_name || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="package_english_name" label="产品包装英文名称" min-width="150" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.package_english_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.package_english_name || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="model" label="型号" min-width="100" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.model || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.model || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="china_retail_price" label="中国零售价" min-width="110" align="right">
+          <template #default="{ row }">{{ row.china_retail_price || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="usd_price" label="美国 (USD)" min-width="110" align="right">
+          <template #default="{ row }">{{ row.usd_price || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="eur_price" label="欧洲 (€)" min-width="110" align="right">
+          <template #default="{ row }">{{ row.eur_price || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="compatible_vehicles" label="适配车型" min-width="150" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.compatible_vehicles || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.compatible_vehicles || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="selling_points" label="产品卖点" min-width="150" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.selling_points || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.selling_points || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="specs" label="规格参数" min-width="140" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.specs || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.specs || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="standard_config" label="标准配置(改进后需要修改)" min-width="200" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.standard_config || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.standard_config || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="production_process" label="生产工艺" min-width="110" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.production_process || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.production_process || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="material" label="材料" min-width="100" >
+  <template #default="{ row }">
+    <el-tooltip :content="row.material || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+      <span class="cell-ellipsis">{{ row.material || '-' }}</span>
+    </el-tooltip>
+  </template>
+</el-table-column>
+        <el-table-column prop="color" label="颜色" min-width="90">
+          <template #default="{ row }">{{ row.color || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="net_weight" label="产品净重(KG)" min-width="100" align="right">
+          <template #default="{ row }">{{ row.net_weight || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="gross_weight" label="毛重(KG)" min-width="100" align="right">
+          <template #default="{ row }">{{ row.gross_weight || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="whole_box_weight" label="整箱毛重(KG)" min-width="110" align="right">
+          <template #default="{ row }">{{ row.whole_box_weight || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="packaging_size" label="包装规格(MM)" min-width="120">
+          <template #default="{ row }">{{ row.packaging_size || '-' }}</template>
+        </el-table-column>
+        <el-table-column label="品牌包装图片" width="80" align="center">
+          <template #default="{ row }">
+            <div class="product-image-cell">
+              <img
+                v-if="getBrandPackageImage(row)"
+                :src="getBrandPackageImgSrc(row)"
+                @error="onImgError"
+                @load="onImgLoad"
+                :style="{ display: imgLoadedMap[row.id] !== false ? '' : 'none' }"
+                alt=""
+              />
+              <div v-if="!getBrandPackageImage(row) || imgLoadedMap[row.id] === false" class="no-image-placeholder">无图</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="inner_box_size" label="内小箱规格(MM)" min-width="140">
+          <template #default="{ row }">{{ row.inner_box_size || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="outer_box_size" label="外大箱规格(MM)" min-width="140">
+          <template #default="{ row }">{{ row.outer_box_size || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="inner_box_qty" label="内箱装箱数量" min-width="110">
+          <template #default="{ row }">{{ row.inner_box_qty || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="outer_box_qty" label="外箱装箱数量" min-width="110" align="right">
+          <template #default="{ row }">{{ row.outer_box_qty || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="packing_qty" label="装箱数量" min-width="90">
+          <template #default="{ row }">{{ row.packing_qty || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="moq" label="MOQ" min-width="80">
+          <template #default="{ row }">{{ row.moq || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="inner_box_sku" label="内箱SKU代码(ICS)" min-width="140">
+          <template #default="{ row }">{{ row.inner_box_sku || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="outer_box_sku" label="外箱SKU代码(MCS)" min-width="140">
+          <template #default="{ row }">{{ row.outer_box_sku || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="inner_barcode" label="内纸箱条形码(ICB)" min-width="150">
+          <template #default="{ row }">{{ row.inner_barcode || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="product_supplying" label="产品供应中" min-width="100">
+          <template #default="{ row }">{{ row.product_supplying || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="remark_2" label="备注(2)" min-width="150">
+          <template #default="{ row }">{{ row.remark_2 || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="cost_1" label="成本(1)" min-width="80" align="right">
+          <template #default="{ row }">{{ row.cost_1 || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="suggested_price" label="建议销售价" min-width="100" align="right">
+          <template #default="{ row }">{{ row.suggested_price || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="competitor_price_sp" label="海外竞对参考价-美(sp)" min-width="150">
+          <template #default="{ row }">{{ row.competitor_price_sp || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="competitor_price_ql" label="海外竞对参考价-美(quadlock)" min-width="170">
+          <template #default="{ row }">{{ row.competitor_price_ql || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="cost" label="成本" min-width="80" align="right">
+          <template #default="{ row }">{{ row.cost || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="suggested_price_1" label="建议销售价(1)" min-width="100" align="right">
+          <template #default="{ row }">{{ row.suggested_price_1 || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="competitor_price_sp_num" label="海外竞对参考价-美:SP" min-width="160" align="right">
+          <template #default="{ row }">{{ row.competitor_price_sp_num || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="competitor_price_ql_num" label="海外竞对参考价-美:ql" min-width="150">
+          <template #default="{ row }">{{ row.competitor_price_ql_num || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="remark_1" label="备注(1)" min-width="150">
+          <template #default="{ row }">{{ row.remark_1 || '-' }}</template>
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="150" align="center">
           <template #default="{ row }">
             <span class="op-link" @click="handleView(row.id)">查看</span>
             <span v-if="canManage" class="op-link" @click="handleEdit(row.id)">编辑</span>
@@ -92,10 +263,10 @@
       </el-table>
 
       <div class="table-page">
-        <el-pagination 
-          background 
-          layout="prev, pager, next" 
-          :total="total" 
+        <el-pagination
+          background
+          layout="prev, pager, next"
+          :total="total"
           :page-size="pageSize"
           :current-page="currentPage"
           @current-change="handlePageChange"
@@ -116,6 +287,7 @@ const router = useRouter()
 const loading = ref(false)
 const tableData = ref<any[]>([])
 const searchKeyword = ref('')
+const filterSeries = ref('')
 const searchType = ref('all')
 const total = ref(0)
 const pageSize = ref(10)
@@ -151,29 +323,31 @@ const onImgLoad = (e: Event) => {
   }
 }
 
-const formatTime = (time: string) => {
-  if (!time) return '-'
-  const date = new Date(time)
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
+const isFeishuFileToken = (path: string) => {
+  return path && !path.startsWith('http') && !path.startsWith('/') && /^[a-zA-Z0-9]+$/.test(path)
 }
 
-const getThumbnail = (row: any) => {
-  if (row.extra_images) {
-    try {
-      const list = JSON.parse(row.extra_images)
-      if (Array.isArray(list) && list.length > 0) {
-        return list[0]
-      }
-    } catch {}
-  }
-  return row.image || null
+const getProductImage = (row: any) => {
+  const path = row.product_image || row.image || null
+  if (path && isFeishuFileToken(path)) return null
+  return path
 }
 
 const getImgSrc = (row: any) => {
-  const path = getThumbnail(row)
+  const path = getProductImage(row)
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return baseURL + (path.startsWith('/') ? path : '/' + path)
+}
+
+const getBrandPackageImage = (row: any) => {
+  const path = row.brand_package_image || null
+  if (path && isFeishuFileToken(path)) return null
+  return path
+}
+
+const getBrandPackageImgSrc = (row: any) => {
+  const path = getBrandPackageImage(row)
   if (!path) return ''
   if (path.startsWith('http')) return path
   return baseURL + (path.startsWith('/') ? path : '/' + path)
@@ -181,12 +355,26 @@ const getImgSrc = (row: any) => {
 
 const getStatusType = (status: string) => {
   const map: Record<string, string> = {
-    '在售': 'success',
-    '停售': 'danger',
-    '预售': 'warning',
-    '待定': 'info'
+    '在线产品': 'success',
+    '未在线产品': 'info',
+    '清货待下架': 'warning',
+    '强制淘汰': 'danger',
+    '可定制': ''
   }
-  return map[status] || 'default'
+  return map[status] || 'info'
+}
+
+const getSeriesTagType = (series: string) => {
+  const map: Record<string, string> = {
+    '骑行单品': '',
+    'MS塑胶减震': 'warning',
+    'MT套装': 'success',
+    'MW套装': 'warning',
+    'M66手机壳': 'danger',
+    'ST06双向充款': 'info',
+    'CZ车载支架': 'success'
+  }
+  return map[series] || '-'
 }
 
 const handleView = (id: number) => {
@@ -229,7 +417,10 @@ const fetchProducts = async () => {
     if (searchKeyword.value) {
       params.append('keyword', searchKeyword.value)
     }
-    
+    if (filterSeries.value) {
+      params.append('series', filterSeries.value)
+    }
+
     const res = await request.get(`/api/products?${params.toString()}`)
     if (res.data.code === 200 && res.data.data) {
       tableData.value = res.data.data.list || []
@@ -288,18 +479,6 @@ onMounted(() => {
   border: 1px solid rgba(148, 163, 184, 0.12);
 }
 
-.list-header {
-  margin-bottom: 20px;
-
-  h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #0f172a;
-    margin: 0;
-    letter-spacing: -0.3px;
-  }
-}
-
 .search-area {
   display: flex;
   gap: 12px;
@@ -307,11 +486,15 @@ onMounted(() => {
   margin-bottom: 20px;
 
   .search-type-select {
-    width: 140px;
+    width: 160px;
   }
 
   .search-input {
     width: 300px;
+  }
+
+  .series-filter {
+    width: 160px;
   }
 
   :deep(.el-button--primary) {
@@ -402,9 +585,17 @@ onMounted(() => {
       border-bottom: 1px solid #e2e8f0;
     }
 
-    td.el-table__cell {
+td.el-table__cell {
       color: #334155;
       font-size: 14px;
+    }
+
+    .el-table__body tr:nth-child(even) > td {
+      background: #f8fafc;
+    }
+
+    .el-table__body tr:nth-child(even):hover > td {
+      background: #f1f5f9;
     }
 
     .el-table__row:hover > td {
@@ -472,5 +663,24 @@ onMounted(() => {
   font-size: 11px;
   color: #94a3b8;
   font-weight: 500;
+}
+</style>
+
+<style lang="scss">
+.cell-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.wrap-tooltip {
+  max-width: 400px !important;
+  .el-tooltip__content {
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    line-height: 1.6 !important;
+  }
 }
 </style>

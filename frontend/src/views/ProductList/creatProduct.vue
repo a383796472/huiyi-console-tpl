@@ -2,444 +2,420 @@
   <div class="create-product" v-loading="loading">
 
     <div class="form-section">
-    <div class="section-title">基础资料</div>
+      <div class="section-title">基础资料</div>
 
-    <div class="product-info">
-      <div class="info-item">
-        <div class="item-label must">产品名称</div>
-        <div class="item-input">
-          <el-input v-model="formData.name" placeholder="请输入产品名称" />
+      <div class="product-info">
+        <div class="info-item">
+          <div class="item-label must">产品名称</div>
+          <div class="item-input">
+            <el-input v-model="formData.productName" placeholder="请输入产品名称" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">英文名称</div>
-        <div class="item-input">
-          <el-input v-model="formData.english_name" placeholder="请输入英文名称" />
+        <div class="info-item">
+          <div class="item-label must">SKU</div>
+          <div class="item-input">
+            <el-input v-model="formData.sku" placeholder="请输入SKU" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">产品编号</div>
-        <div class="item-input">
-          <el-input v-model="formData.product_code" placeholder="请输入产品编号" />
+        <div class="info-item">
+          <div class="item-label">产品编号</div>
+          <div class="item-input">
+            <el-input v-model="formData.productCode" placeholder="请输入产品编号" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label must">SKU编号</div>
-        <div class="item-input">
-          <el-input v-model="formData.SKU" placeholder="请输入SKU编号" type="number" />
+        <div class="info-item">
+          <div class="item-label">系列</div>
+          <div class="item-input">
+            <el-select v-model="formData.series" placeholder="请选择系列" clearable>
+              <el-option label="骑行单品" value="骑行单品" />
+              <el-option label="MS塑胶减震" value="MS塑胶减震" />
+              <el-option label="MT套装" value="MT套装" />
+              <el-option label="MW套装" value="MW套装" />
+              <el-option label="M66手机壳" value="M66手机壳" />
+              <el-option label="ST06双向充款" value="ST06双向充款" />
+              <el-option label="CZ车载支架" value="CZ车载支架" />
+            </el-select>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">一级品类</div>
-        <div class="item-input">
-          <el-input v-model="formData.category_l1" placeholder="请输入一级品类" />
+        <div class="info-item">
+          <div class="item-label">系列编号</div>
+          <div class="item-input">
+            <el-input v-model="formData.seriesCode" placeholder="请输入系列编号" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">二级品类</div>
-        <div class="item-input">
-          <el-input v-model="formData.category_l2" placeholder="请输入二级品类" />
+        <div class="info-item">
+          <div class="item-label">产品状态</div>
+          <div class="item-input">
+            <el-select v-model="formData.productStatus" placeholder="请选择产品状态" multiple collapse-tags collapse-tags-tooltip>
+              <el-option label="在线产品" value="在线产品" />
+              <el-option label="未在线产品" value="未在线产品" />
+              <el-option label="清货待下架" value="清货待下架" />
+              <el-option label="强制淘汰" value="强制淘汰" />
+              <el-option label="可定制" value="可定制" />
+            </el-select>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">产品类型</div>
-        <div class="item-input">
-          <el-select v-model="formData.product_type" placeholder="请选择产品类型" clearable>
-            <el-option label="成品" value="成品" />
-            <el-option label="单品" value="单品" />
-          </el-select>
+        <div class="info-item">
+          <div class="item-label">英文产品名称</div>
+          <div class="item-input">
+            <el-input v-model="formData.englishName" placeholder="请输入英文产品名称" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">EAN码</div>
-        <div class="item-input">
-          <el-input v-model="formData.ean_code" placeholder="请输入EAN码" />
+        <div class="info-item">
+          <div class="item-label">型号</div>
+          <div class="item-input">
+            <el-input v-model="formData.model" placeholder="请输入型号" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">美国条形码编号</div>
-        <div class="item-input">
-          <el-input v-model="formData.us_barcode" placeholder="请输入美国条形码编号" />
+        <div class="info-item">
+          <div class="item-label">颜色</div>
+          <div class="item-input">
+            <el-select v-model="formData.color" placeholder="请选择颜色" clearable>
+              <el-option label="黑色" value="黑色" />
+              <el-option label="白色" value="白色" />
+              <el-option label="红色" value="红色" />
+              <el-option label="蓝色" value="蓝色" />
+              <el-option label="灰色" value="灰色" />
+              <el-option label="银色" value="银色" />
+              <el-option label="金色" value="金色" />
+            </el-select>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">适配车型</div>
-        <div class="item-input">
-          <el-input v-model="formData.compatible_vehicles" placeholder="请输入适配车型" />
+        <div class="info-item">
+          <div class="item-label">生产工艺</div>
+          <div class="item-input">
+            <el-input v-model="formData.productionProcess" placeholder="请输入生产工艺" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">销售状态</div>
-        <div class="item-input">
-          <el-select v-model="formData.sales_status" placeholder="请选择销售状态" clearable>
-            <el-option label="在线产品" value="在线产品" />
-            <el-option label="未在线产品" value="未在线产品" />
-            <el-option label="清货待下架" value="清货待下架" />
-            <el-option label="下架产品" value="下架产品" />
-            <el-option label="淘汰" value="淘汰" />
-          </el-select>
+        <div class="info-item">
+          <div class="item-label">材料</div>
+          <div class="item-input">
+            <el-input v-model="formData.material" placeholder="请输入材料" />
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">成本价RMB</div>
-        <div class="item-input">
-          <el-input v-model="formData.cost_price_rmb" placeholder="请输入成本价" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">建议零售价USD</div>
-        <div class="item-input">
-          <el-input v-model="formData.retail_price_usd" placeholder="请输入建议零售价USD" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">建议零售价EUR</div>
-        <div class="item-input">
-          <el-input v-model="formData.retail_price_eur" placeholder="请输入建议零售价EUR" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">建议零售价RMB</div>
-        <div class="item-input">
-          <el-input v-model="formData.retail_price_rmb" placeholder="请输入建议零售价RMB" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">产品认证</div>
-        <div class="item-input">
-          <el-input v-model="formData.certification" type="textarea" :rows="2" placeholder="请输入产品认证" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">产品专利</div>
-        <div class="item-input">
-          <el-input v-model="formData.patent" type="textarea" :rows="2" placeholder="请输入产品专利" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">取得方式</div>
-        <div class="item-input">
-          <el-select v-model="formData.acquisition_method" placeholder="请选择取得方式" clearable>
-            <el-option label="生产" value="生产" />
-            <el-option label="外采" value="外采" />
-            <el-option label="组装" value="组装" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">颜色</div>
-        <div class="item-input">
-          <el-input v-model="formData.color" placeholder="请输入颜色" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">参考链接</div>
-        <div class="item-input">
-          <el-input v-model="formData.reference_link" placeholder="请输入参考链接" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">对标竞品</div>
-        <div class="item-input">
-          <el-input v-model="formData.competitor_product" placeholder="请输入对标竞品" />
-        </div>
-      </div>
-    </div>
-    </div>
-
-    <div class="form-section">
-    <div class="section-title">产品规格</div>
-
-    <div class="product-info">
-      <div class="info-item">
-        <div class="item-label">净重KG</div>
-        <div class="item-input">
-          <el-input v-model="formData.net_weight" placeholder="请输入净重" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">毛重KG</div>
-        <div class="item-input">
-          <el-input v-model="formData.gross_weight" placeholder="请输入毛重" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">整箱毛重KG</div>
-        <div class="item-input">
-          <el-input v-model="formData.whole_box_weight" placeholder="请输入整箱毛重" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">产品单位</div>
-        <div class="item-input">
-          <el-select v-model="formData.unit" placeholder="请选择产品单位" clearable>
-            <el-option label="个" value="个" />
-            <el-option label="套" value="套" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">产品尺寸</div>
-        <div class="item-input">
-          <el-input v-model="formData.product_size" placeholder="请输入产品尺寸" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">包装尺寸MM</div>
-        <div class="item-input">
-          <el-input v-model="formData.packaging_size_mm" placeholder="请输入包装尺寸" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">内小箱MM</div>
-        <div class="item-input">
-          <el-input v-model="formData.inner_box_size" placeholder="请输入内小箱尺寸" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">外大箱MM</div>
-        <div class="item-input">
-          <el-input v-model="formData.outer_box_size" placeholder="请输入外大箱尺寸" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">内箱装箱数量</div>
-        <div class="item-input">
-          <el-input v-model="formData.inner_box_qty" placeholder="请输入内箱装箱数量" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">装箱数量</div>
-        <div class="item-input">
-          <el-input v-model="formData.packing_qty" placeholder="请输入装箱数量" type="number" />
-        </div>
-      </div>
-    </div>
-    </div>
-
-    <div class="form-section">
-    <div class="section-title">报关信息</div>
-
-    <div class="product-info">
-      <div class="info-item">
-        <div class="item-label">申报品类</div>
-        <div class="item-input">
-          <el-select v-model="formData.declare_category" placeholder="请选择申报品类" clearable />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">海关编码</div>
-        <div class="item-input">
-          <el-input v-model="formData.hs_code" placeholder="请输入海关编码" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">中文申报品名</div>
-        <div class="item-input">
-          <el-input v-model="formData.declare_name_cn" placeholder="请输入中文申报品名" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">英文申报品名</div>
-        <div class="item-input">
-          <el-input v-model="formData.declare_name_en" placeholder="请输入英文申报品名" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">申报价值USD</div>
-        <div class="item-input">
-          <el-input v-model="formData.declare_value_usd" placeholder="请输入申报价值USD" type="number" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">中文材质</div>
-        <div class="item-input">
-          <el-input v-model="formData.material_cn" placeholder="请输入中文材质" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">英文材质</div>
-        <div class="item-input">
-          <el-input v-model="formData.material_en" placeholder="请输入英文材质" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">中文用途</div>
-        <div class="item-input">
-          <el-input v-model="formData.usage_cn" placeholder="请输入中文用途" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">英文用途</div>
-        <div class="item-input">
-          <el-input v-model="formData.usage_en" placeholder="请输入英文用途" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">是否包含电池</div>
-        <div class="item-input">
-          <el-select v-model="formData.has_battery" placeholder="请选择" clearable>
-            <el-option label="是" value="是" />
-            <el-option label="否" value="否" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">是否包含特货</div>
-        <div class="item-input">
-          <el-select v-model="formData.has_special_goods" placeholder="请选择" clearable>
-            <el-option label="是" value="是" />
-            <el-option label="否" value="否" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">是否带磁</div>
-        <div class="item-input">
-          <el-select v-model="formData.has_magnetism" placeholder="请选择" clearable>
-            <el-option label="是" value="是" />
-            <el-option label="否" value="否" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">是否含非液体化妆品</div>
-        <div class="item-input">
-          <el-select v-model="formData.has_non_liquid_cosmetics" placeholder="请选择" clearable>
-            <el-option label="是" value="是" />
-            <el-option label="否" value="否" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">是否为仿制品</div>
-        <div class="item-input">
-          <el-select v-model="formData.is_counterfeit" placeholder="请选择" clearable>
-            <el-option label="是" value="是" />
-            <el-option label="否" value="否" />
-          </el-select>
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">报关名称</div>
-        <div class="item-input">
-          <el-input v-model="formData.customs_name" placeholder="请输入报关名称" />
-        </div>
-      </div>
-      <div class="info-item">
-        <div class="item-label">报关专用材质</div>
-        <div class="item-input">
-          <el-input v-model="formData.customs_material" placeholder="请输入报关专用材质" />
-        </div>
-      </div>
-    </div>
-    </div>
-
-    <div class="form-section">
-    <div class="section-title">附加信息</div>
-
-    <div class="extra-tabs">
-      <div class="extra-tabs-nav">
-        <div
-          v-for="tab in extraTabList"
-          :key="tab.key"
-          class="extra-tab-item"
-          :class="{ active: activeExtraTab === tab.key }"
-          @click="activeExtraTab = tab.key"
-        >
-          {{ tab.label }}
-        </div>
-      </div>
-
-      <div v-if="activeExtraTab === 'extra'" class="extra-tab-content">
-        <el-input
-          v-model="formData.extra_info"
-          type="textarea"
-          :rows="6"
-          placeholder="请输入附加信息"
-        />
-      </div>
-
-      <div v-if="activeExtraTab === 'images'" class="extra-tab-content">
-        <el-upload
-          ref="uploadExtraRef"
-          :show-file-list="false"
-          :http-request="handleExtraUpload"
-          accept=".jpg,.jpeg,.png,.webp"
-          :before-upload="beforeExtraUpload"
-        >
-          <el-button type="primary">
-            <el-icon style="margin-right: 4px;"><Plus /></el-icon>上传图片
-          </el-button>
-        </el-upload>
-        <div v-if="extraImages.length > 0" class="extra-image-list">
-          <div v-for="(url, idx) in extraImages" :key="idx" class="extra-image-item">
-            <img :src="baseURL + url" alt="" />
-            <el-icon class="extra-image-remove" @click="removeExtraImage(idx)"><Close /></el-icon>
+        <div class="info-item">
+          <div class="item-label">适配车型</div>
+          <div class="item-input">
+            <el-input v-model="formData.compatibleVehicles" placeholder="请输入适配车型" />
           </div>
         </div>
       </div>
-
-      <div v-if="activeExtraTab === 'accessory'" class="extra-tab-content">
-        <el-input
-          v-model="formData.accessory_info"
-          type="textarea"
-          :rows="6"
-          placeholder="请输入产品规格/配件"
-        />
-      </div>
-
-      <div v-if="activeExtraTab === 'selling'" class="extra-tab-content">
-        <el-table :data="sellingPoints" border style="width: 100%">
-          <el-table-column label="序号" width="60" align="center">
-            <template #default="{ $index }">{{ $index + 1 }}</template>
-          </el-table-column>
-          <el-table-column label="卖点" min-width="120">
-            <template #default="{ row }">
-              <el-input v-model="row.point" placeholder="请输入卖点" />
-            </template>
-          </el-table-column>
-          <el-table-column label="产品属性F（Feature）" min-width="200">
-            <template #default="{ row }">
-              <el-input v-model="row.feature" type="textarea" :autosize="{ minRows: 1, maxRows: 4 }" placeholder="请输入产品属性" />
-            </template>
-          </el-table-column>
-          <el-table-column label="产品优势A（Advantage）" min-width="200">
-            <template #default="{ row }">
-              <el-input v-model="row.advantage" type="textarea" :autosize="{ minRows: 1, maxRows: 4 }" placeholder="请输入产品优势" />
-            </template>
-          </el-table-column>
-          <el-table-column label="用户利益B（Benefit）" min-width="200">
-            <template #default="{ row }">
-              <el-input v-model="row.benefit" type="textarea" :autosize="{ minRows: 1, maxRows: 4 }" placeholder="请输入用户利益" />
-            </template>
-          </el-table-column>
-          <el-table-column label="总结" min-width="200">
-            <template #default="{ row }">
-              <el-input v-model="row.summary" type="textarea" :autosize="{ minRows: 1, maxRows: 4 }" placeholder="请输入总结" />
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="60" align="center">
-            <template #default="{ $index }">
-              <el-button link type="danger" size="small" @click="removeSellingPoint($index)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-button type="primary" style="margin-top: 12px" @click="addSellingPoint">
-          <el-icon style="margin-right: 4px;"><Plus /></el-icon>新增一行
-        </el-button>
-      </div>
-
-      <div v-if="activeExtraTab === 'detail'" class="extra-tab-content">
-        <Editor v-model="formData.selling_detail" />
-      </div>
-    </div>
     </div>
 
-    <!-- 操作按钮 -->
+    <div class="form-section">
+      <div class="section-title">价格信息</div>
+
+      <div class="product-info">
+        <div class="info-item">
+          <div class="item-label">中国零售价</div>
+          <div class="item-input">
+            <el-input v-model="formData.chinaRetailPrice" placeholder="请输入中国零售价" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">美国（USD）</div>
+          <div class="item-input">
+            <el-input v-model="formData.usdPrice" placeholder="请输入美国价格" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">欧洲（€）</div>
+          <div class="item-input">
+            <el-input v-model="formData.eurPrice" placeholder="请输入欧洲价格" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">建议销售价</div>
+          <div class="item-input">
+            <el-input v-model="formData.suggestedPrice" placeholder="请输入建议销售价" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">建议销售价（1）</div>
+          <div class="item-input">
+            <el-input v-model="formData.suggestedPrice1" placeholder="请输入建议销售价1" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">成本</div>
+          <div class="item-input">
+            <el-input v-model="formData.cost" placeholder="请输入成本" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">成本（1）</div>
+          <div class="item-input">
+            <el-input v-model="formData.cost1" placeholder="请输入成本1" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">MOQ</div>
+          <div class="item-input">
+            <el-input v-model="formData.moq" placeholder="请输入MOQ" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美（sp）</div>
+          <div class="item-input">
+            <el-input v-model="formData.competitorPriceSp" placeholder="请输入竞对参考价" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美（quadlock）</div>
+          <div class="item-input">
+            <el-input v-model="formData.competitorPriceQl" placeholder="请输入竞对参考价" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美：SP</div>
+          <div class="item-input">
+            <el-input v-model="formData.competitorPriceSpNum" placeholder="请输入SP竞对参考价" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美：ql</div>
+          <div class="item-input">
+            <el-input v-model="formData.competitorPriceQlNum" placeholder="请输入ql竞对参考价" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">规格参数</div>
+
+      <div class="product-info">
+        <div class="info-item info-item--full">
+          <div class="item-label">产品卖点</div>
+          <div class="item-input">
+            <el-input v-model="formData.sellingPoints" type="textarea" :rows="3" placeholder="请输入产品卖点" />
+          </div>
+        </div>
+        <div class="info-item info-item--full">
+          <div class="item-label">规格参数</div>
+          <div class="item-input">
+            <el-input v-model="formData.specs" type="textarea" :rows="3" placeholder="请输入规格参数" />
+          </div>
+        </div>
+        <div class="info-item info-item--full">
+          <div class="item-label">标准配置</div>
+          <div class="item-input">
+            <el-input v-model="formData.standardConfig" type="textarea" :rows="3" placeholder="请输入标准配置" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">产品包装英文名称</div>
+          <div class="item-input">
+            <el-input v-model="formData.packageEnglishName" placeholder="请输入产品包装英文名称" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">净重KG</div>
+          <div class="item-input">
+            <el-input v-model="formData.netWeight" placeholder="请输入净重" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">毛重KG</div>
+          <div class="item-input">
+            <el-input v-model="formData.grossWeight" placeholder="请输入毛重" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">整箱毛重KG</div>
+          <div class="item-input">
+            <el-input v-model="formData.wholeBoxWeight" placeholder="请输入整箱毛重" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">包装规格MM</div>
+          <div class="item-input">
+            <el-input v-model="formData.packagingSize" placeholder="请输入包装规格" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">包装信息</div>
+
+      <div class="product-info">
+        <div class="info-item">
+          <div class="item-label">内小箱规格MM</div>
+          <div class="item-input">
+            <el-input v-model="formData.innerBoxSize" placeholder="请输入内小箱规格" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">外大箱规格MM</div>
+          <div class="item-input">
+            <el-input v-model="formData.outerBoxSize" placeholder="请输入外大箱规格" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">内箱装箱数量</div>
+          <div class="item-input">
+            <el-input v-model="formData.innerBoxQty" placeholder="请输入内箱装箱数量" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">外箱装箱数量</div>
+          <div class="item-input">
+            <el-input v-model="formData.outerBoxQty" placeholder="请输入外箱装箱数量" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">装箱数量</div>
+          <div class="item-input">
+            <el-input v-model="formData.packingQty" placeholder="请输入装箱数量" type="number" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">内箱SKU代码ICS</div>
+          <div class="item-input">
+            <el-input v-model="formData.innerBoxSku" placeholder="请输入内箱SKU代码" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">外箱SKU代码MCS</div>
+          <div class="item-input">
+            <el-input v-model="formData.outerBoxSku" placeholder="请输入外箱SKU代码" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">内纸箱条形码ICB</div>
+          <div class="item-input">
+            <el-input v-model="formData.innerBarcode" placeholder="请输入内纸箱条形码" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">报关信息</div>
+
+      <div class="product-info">
+        <div class="info-item">
+          <div class="item-label">EAN码</div>
+          <div class="item-input">
+            <el-input v-model="formData.eanCode" placeholder="请输入EAN码" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海关编码</div>
+          <div class="item-input">
+            <el-input v-model="formData.hsCode" placeholder="请输入海关编码" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">美国条形码编号</div>
+          <div class="item-input">
+            <el-input v-model="formData.usBarcode" placeholder="请输入美国条形码编号" />
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">产品供应中</div>
+          <div class="item-input">
+            <el-select v-model="formData.productSupplying" placeholder="请选择供应状态" clearable>
+              <el-option label="供应中" value="供应中" />
+              <el-option label="停产" value="停产" />
+              <el-option label="待上市" value="待上市" />
+            </el-select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">备注</div>
+
+      <div class="product-info">
+        <div class="info-item info-item--full">
+          <div class="item-label">备注</div>
+          <div class="item-input">
+            <el-input v-model="formData.remark" type="textarea" :rows="3" placeholder="请输入备注" />
+          </div>
+        </div>
+        <div class="info-item info-item--full">
+          <div class="item-label">备注（1）</div>
+          <div class="item-input">
+            <el-input v-model="formData.remark1" type="textarea" :rows="3" placeholder="请输入备注1" />
+          </div>
+        </div>
+        <div class="info-item info-item--full">
+          <div class="item-label">备注（2）</div>
+          <div class="item-input">
+            <el-input v-model="formData.remark2" type="textarea" :rows="3" placeholder="请输入备注2" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">产品图片</div>
+
+      <div class="extra-tabs">
+        <div class="extra-tabs-nav">
+          <div
+            v-for="tab in imageTabList"
+            :key="tab.key"
+            class="extra-tab-item"
+            :class="{ active: activeImageTab === tab.key }"
+            @click="activeImageTab = tab.key"
+          >
+            {{ tab.label }}
+          </div>
+        </div>
+
+        <div v-if="activeImageTab === 'product'" class="extra-tab-content">
+          <el-upload
+            ref="uploadProductRef"
+            :show-file-list="false"
+            :http-request="handleProductUpload"
+            accept=".jpg,.jpeg,.png,.webp"
+            :before-upload="beforeImageUpload"
+            multiple
+          >
+            <el-button type="primary">
+              <el-icon style="margin-right: 4px;"><Plus /></el-icon>上传产品图片
+            </el-button>
+          </el-upload>
+          <div v-if="productImages.length > 0" class="extra-image-list">
+            <div v-for="(url, idx) in productImages" :key="idx" class="extra-image-item">
+              <img :src="resolveImageUrl(url)" alt="" />
+              <el-icon class="extra-image-remove" @click="removeProductImage(idx)"><Close /></el-icon>
+            </div>
+          </div>
+          <div v-else class="upload-tip">暂未上传产品图片</div>
+        </div>
+
+        <div v-if="activeImageTab === 'brand'" class="extra-tab-content">
+          <el-upload
+            ref="uploadBrandRef"
+            :show-file-list="false"
+            :http-request="handleBrandUpload"
+            accept=".jpg,.jpeg,.png,.webp"
+            :before-upload="beforeImageUpload"
+            multiple
+          >
+            <el-button type="primary">
+              <el-icon style="margin-right: 4px;"><Plus /></el-icon>上传品牌包装图片
+            </el-button>
+          </el-upload>
+          <div v-if="brandImages.length > 0" class="extra-image-list">
+            <div v-for="(url, idx) in brandImages" :key="idx" class="extra-image-item">
+              <img :src="resolveImageUrl(url)" alt="" />
+              <el-icon class="extra-image-remove" @click="removeBrandImage(idx)"><Close /></el-icon>
+            </div>
+          </div>
+          <div v-else class="upload-tip">暂未上传品牌包装图片</div>
+        </div>
+      </div>
+    </div>
+
     <div class="product-actions">
-      <el-button type="primary" @click="handleSubmit">保存产品</el-button>
-      <el-button @click="router.push('/products')" :loading="isSubmitting">取消</el-button>
+      <el-button type="primary" :loading="isSubmitting" @click="handleSubmit">保存产品</el-button>
+      <el-button @click="router.push('/products')">取消</el-button>
     </div>
   </div>
 </template>
@@ -449,7 +425,6 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus, Close } from '@element-plus/icons-vue'
-import Editor from '@/components/Editor.vue'
 import request, { baseURL } from '@/utils/request'
 
 const router = useRouter()
@@ -459,57 +434,40 @@ const loading = ref(false)
 let isUnmounted = false
 const abortController = new AbortController()
 
-const activeExtraTab = ref('extra')
-const extraTabList = [
-  { label: '产品信息', key: 'extra' },
-  { label: '产品图片', key: 'images' },
-  { label: '产品规格/配件', key: 'accessory' },
-  { label: '产品卖点', key: 'selling' },
-  { label: '卖点详情', key: 'detail' }
+const activeImageTab = ref('product')
+const imageTabList = [
+  { label: '产品图片', key: 'product' },
+  { label: '品牌包装图片', key: 'brand' }
 ]
 
-interface SellingPoint {
-  point: string
-  feature: string
-  advantage: string
-  benefit: string
-  summary: string
-}
-
-const sellingPoints = ref<SellingPoint[]>([
-  { point: '', feature: '', advantage: '', benefit: '', summary: '' },
-  { point: '', feature: '', advantage: '', benefit: '', summary: '' },
-  { point: '', feature: '', advantage: '', benefit: '', summary: '' }
-])
-
-const addSellingPoint = () => {
-  sellingPoints.value.push({ point: '', feature: '', advantage: '', benefit: '', summary: '' })
-}
-
-const removeSellingPoint = (index: number) => {
-  if (sellingPoints.value.length > 1) {
-    sellingPoints.value.splice(index, 1)
-  }
-}
+const productImages = ref<string[]>([])
+const brandImages = ref<string[]>([])
 
 // @ts-expect-error template ref
-const uploadExtraRef = ref()
-const extraImages = ref<string[]>([])
+const uploadProductRef = ref()
+// @ts-expect-error template ref
+const uploadBrandRef = ref()
 
-const beforeExtraUpload = (file: File) => {
+const beforeImageUpload = (file: File) => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
   if (!allowedTypes.includes(file.type)) {
     ElMessage.error('仅支持 jpg/png/webp 格式的图片')
     return false
   }
-  if (file.size > 2 * 1024 * 1024) {
-    ElMessage.error('图片大小不能超过 2MB')
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('图片大小不能超过 5MB')
     return false
   }
   return true
 }
 
-const handleExtraUpload = async (options: any) => {
+const resolveImageUrl = (url: string) => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return baseURL + (url.startsWith('/') ? url : '/' + url)
+}
+
+const handleProductUpload = async (options: any) => {
   const file = options.file
   const fd = new FormData()
   fd.append('file', file)
@@ -517,74 +475,105 @@ const handleExtraUpload = async (options: any) => {
   try {
     const res = await request.post('/api/upload/image', fd)
     if (res.data.code === 200 && res.data.data && res.data.data.url) {
-      extraImages.value.push(res.data.data.url)
+      productImages.value.push(res.data.data.url)
       ElMessage.success('图片上传成功')
     } else {
       ElMessage.error(res.data.message || '图片上传失败')
     }
-  } catch (error) {
+  } catch {
     ElMessage.error('图片上传失败，请检查后端服务')
   }
 }
 
-const removeExtraImage = (index: number) => {
-  extraImages.value.splice(index, 1)
+const handleBrandUpload = async (options: any) => {
+  const file = options.file
+  const fd = new FormData()
+  fd.append('file', file)
+
+  try {
+    const res = await request.post('/api/upload/image', fd)
+    if (res.data.code === 200 && res.data.data && res.data.data.url) {
+      brandImages.value.push(res.data.data.url)
+      ElMessage.success('图片上传成功')
+    } else {
+      ElMessage.error(res.data.message || '图片上传失败')
+    }
+  } catch {
+    ElMessage.error('图片上传失败，请检查后端服务')
+  }
+}
+
+const removeProductImage = (index: number) => {
+  productImages.value.splice(index, 1)
+}
+
+const removeBrandImage = (index: number) => {
+  brandImages.value.splice(index, 1)
 }
 
 const formData = reactive({
-  name: '',
-  english_name: '',
-  product_code: '',
-  SKU: '',
-  category_l1: '',
-  category_l2: '',
-  product_type: '',
-  ean_code: '',
-  us_barcode: '',
-  compatible_vehicles: '',
-  sales_status: '',
-  cost_price_rmb: '',
-  retail_price_usd: '',
-  retail_price_eur: '',
-  retail_price_rmb: '',
-  certification: '',
-  patent: '',
-  acquisition_method: '',
+  productName: '',
+  sku: '',
+  productCode: '',
+  series: '',
+  seriesCode: '',
+  productStatus: [] as string[],
+  englishName: '',
+  model: '',
   color: '',
-  reference_link: '',
-  competitor_product: '',
-  net_weight: '',
-  gross_weight: '',
-  whole_box_weight: '',
-  unit: '',
-  product_size: '',
-  packaging_size_mm: '',
-  inner_box_size: '',
-  outer_box_size: '',
-  inner_box_qty: '',
-  packing_qty: '',
-  declare_category: '',
-  hs_code: '',
-  declare_name_cn: '',
-  declare_name_en: '',
-  declare_value_usd: '',
-  material_cn: '',
-  material_en: '',
-  usage_cn: '',
-  usage_en: '',
-  has_battery: '',
-  has_special_goods: '',
-  has_magnetism: '',
-  has_non_liquid_cosmetics: '',
-  is_counterfeit: '',
-  customs_name: '',
-  customs_material: '',
-  extra_info: '',
-  accessory_info: '',
-  description: '',
-  selling_detail: '',
-  image: ''
+  productionProcess: '',
+  material: '',
+  compatibleVehicles: '',
+  chinaRetailPrice: '',
+  usdPrice: '',
+  eurPrice: '',
+  suggestedPrice: '',
+  suggestedPrice1: '',
+  cost: '',
+  cost1: '',
+  moq: '',
+  competitorPriceSp: '',
+  competitorPriceQl: '',
+  competitorPriceSpNum: '',
+  competitorPriceQlNum: '',
+  sellingPoints: '',
+  specs: '',
+  standardConfig: '',
+  packageEnglishName: '',
+  netWeight: '',
+  grossWeight: '',
+  wholeBoxWeight: '',
+  packagingSize: '',
+  innerBoxSize: '',
+  outerBoxSize: '',
+  innerBoxQty: '',
+  outerBoxQty: '',
+  packingQty: '',
+  innerBoxSku: '',
+  outerBoxSku: '',
+  innerBarcode: '',
+  eanCode: '',
+  hsCode: '',
+  usBarcode: '',
+  productSupplying: '',
+  remark: '',
+  remark1: '',
+  remark2: ''
 })
+
+const parseImageField = (value: any): string[] => {
+  if (!value) return []
+  if (Array.isArray(value)) return value.filter(Boolean)
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) return parsed.filter(Boolean)
+    } catch {
+      return value.split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+  }
+  return []
+}
 
 const fetchProductDetail = async () => {
   const id = route.query.id
@@ -598,23 +587,17 @@ const fetchProductDetail = async () => {
     if (isUnmounted) return
     if (res.data.code === 200 && res.data.data) {
       const data = res.data.data
-      Object.assign(formData, data)
-      if (data.selling_points) {
-        try {
-          const parsed = JSON.parse(data.selling_points)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            sellingPoints.value = parsed
-          }
-        } catch { }
+      Object.keys(formData).forEach(key => {
+        const snakeKey = key.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase())
+        if (data[snakeKey] !== undefined) {
+          ;(formData as any)[key] = data[snakeKey]
+        }
+      })
+      if (data.product_status !== undefined) {
+        formData.productSupplying = data.product_status
       }
-      if (data.extra_images) {
-        try {
-          const parsed = JSON.parse(data.extra_images)
-          if (Array.isArray(parsed)) {
-            extraImages.value = parsed
-          }
-        } catch { }
-      }
+      productImages.value = parseImageField(data.product_images)
+      brandImages.value = parseImageField(data.brand_images)
     }
   } catch (error) {
     if ((error as any).code !== 'ERR_CANCELED') {
@@ -639,76 +622,72 @@ onUnmounted(() => {
 const handleSubmit = async () => {
   if (isSubmitting.value) return
 
-  if (!formData.name) {
+  if (!formData.productName) {
     ElMessage.error('请输入产品名称')
     return
   }
-  if (!formData.SKU) {
-    ElMessage.error('请输入SKU编号')
+  if (!formData.sku) {
+    ElMessage.error('请输入SKU')
     return
   }
 
   const id = route.query.id
   try {
     isSubmitting.value = true
-    let response
+
     const submitData = {
-      name: formData.name,
-      englishName: formData.english_name,
-      productCode: formData.product_code,
-      SKU: formData.SKU,
-      categoryL1: formData.category_l1,
-      categoryL2: formData.category_l2,
-      productType: formData.product_type,
-      eanCode: formData.ean_code,
-      usBarcode: formData.us_barcode,
-      compatibleVehicles: formData.compatible_vehicles,
-      salesStatus: formData.sales_status,
-      costPriceRmb: formData.cost_price_rmb,
-      retailPriceUsd: formData.retail_price_usd,
-      retailPriceEur: formData.retail_price_eur,
-      retailPriceRmb: formData.retail_price_rmb,
-      certification: formData.certification,
-      patent: formData.patent,
-      acquisitionMethod: formData.acquisition_method,
+      productName: formData.productName,
+      sku: formData.sku,
+      productCode: formData.productCode,
+      series: formData.series,
+      seriesCode: formData.seriesCode,
+      productStatus: Array.isArray(formData.productStatus) ? formData.productStatus.join(',') : formData.productStatus,
+      englishName: formData.englishName,
+      model: formData.model,
       color: formData.color,
-      referenceLink: formData.reference_link,
-      competitorProduct: formData.competitor_product,
-      netWeight: formData.net_weight,
-      grossWeight: formData.gross_weight,
-      wholeBoxWeight: formData.whole_box_weight,
-      unit: formData.unit,
-      productSize: formData.product_size,
-      packagingSizeMm: formData.packaging_size_mm,
-      innerBoxSize: formData.inner_box_size,
-      outerBoxSize: formData.outer_box_size,
-      innerBoxQty: formData.inner_box_qty,
-      packingQty: formData.packing_qty,
-      declareCategory: formData.declare_category,
-      hsCode: formData.hs_code,
-      declareNameCn: formData.declare_name_cn,
-      declareNameEn: formData.declare_name_en,
-      declareValueUsd: formData.declare_value_usd,
-      materialCn: formData.material_cn,
-      materialEn: formData.material_en,
-      usageCn: formData.usage_cn,
-      usageEn: formData.usage_en,
-      hasBattery: formData.has_battery,
-      hasSpecialGoods: formData.has_special_goods,
-      hasMagnetism: formData.has_magnetism,
-      hasNonLiquidCosmetics: formData.has_non_liquid_cosmetics,
-      isCounterfeit: formData.is_counterfeit,
-      customsName: formData.customs_name,
-      customsMaterial: formData.customs_material,
-      extraInfo: formData.extra_info,
-      accessoryInfo: formData.accessory_info,
-      extraImages: JSON.stringify(extraImages.value),
-      sellingPoints: JSON.stringify(sellingPoints.value),
-      sellingDetail: formData.selling_detail,
-      image: formData.image,
-      desc: formData.description
+      productionProcess: formData.productionProcess,
+      material: formData.material,
+      compatibleVehicles: formData.compatibleVehicles,
+      chinaRetailPrice: formData.chinaRetailPrice,
+      usdPrice: formData.usdPrice,
+      eurPrice: formData.eurPrice,
+      suggestedPrice: formData.suggestedPrice,
+      suggestedPrice1: formData.suggestedPrice1,
+      cost: formData.cost,
+      cost1: formData.cost1,
+      moq: formData.moq,
+      competitorPriceSp: formData.competitorPriceSp,
+      competitorPriceQl: formData.competitorPriceQl,
+      competitorPriceSpNum: formData.competitorPriceSpNum,
+      competitorPriceQlNum: formData.competitorPriceQlNum,
+      sellingPoints: formData.sellingPoints,
+      specs: formData.specs,
+      standardConfig: formData.standardConfig,
+      packageEnglishName: formData.packageEnglishName,
+      netWeight: formData.netWeight,
+      grossWeight: formData.grossWeight,
+      wholeBoxWeight: formData.wholeBoxWeight,
+      packagingSize: formData.packagingSize,
+      innerBoxSize: formData.innerBoxSize,
+      outerBoxSize: formData.outerBoxSize,
+      innerBoxQty: formData.innerBoxQty,
+      outerBoxQty: formData.outerBoxQty,
+      packingQty: formData.packingQty,
+      innerBoxSku: formData.innerBoxSku,
+      outerBoxSku: formData.outerBoxSku,
+      innerBarcode: formData.innerBarcode,
+      eanCode: formData.eanCode,
+      hsCode: formData.hsCode,
+      usBarcode: formData.usBarcode,
+      productSupplying: formData.productSupplying,
+      remark: formData.remark,
+      remark1: formData.remark1,
+      remark2: formData.remark2,
+      productImage: JSON.stringify(productImages.value),
+      brandPackageImage: JSON.stringify(brandImages.value)
     }
 
+    let response
     if (id) {
       response = await request.put(`/api/products/${id}`, submitData, {
         timeout: 10000
@@ -758,51 +737,6 @@ const handleSubmit = async () => {
   margin-bottom: 16px;
 }
 
-.extra-section-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #303133;
-  margin-bottom: 8px;
-}
-
-.extra-image-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.extra-image-item {
-  width: 80px;
-  height: 80px;
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-  border: 1px solid #e2e8f0;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .extra-image-remove {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 14px;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
-    padding: 2px;
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.8);
-    }
-  }
-}
-
 .form-section {
   margin-bottom: 32px;
 }
@@ -819,8 +753,12 @@ const handleSubmit = async () => {
     align-items: flex-start;
     margin-bottom: 20px;
 
+    &.info-item--full {
+      width: 100%;
+    }
+
     .item-label {
-      width: 120px;
+      width: 140px;
       font-weight: 500;
       text-align: right;
       padding-right: 12px;
@@ -903,14 +841,57 @@ const handleSubmit = async () => {
   .extra-tab-content {
     padding: 20px;
     background: #fff;
-    min-height: 400px;
-    .el-button + .el-button {
-      margin-left: 0;
+    min-height: 200px;
+  }
+}
+
+.extra-image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.extra-image-item {
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #e2e8f0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .extra-image-remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 14px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    padding: 2px;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.8);
     }
   }
 }
 
+.upload-tip {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
 .product-actions {
   margin-top: 24px;
+  display: flex;
+  gap: 12px;
 }
 </style>

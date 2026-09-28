@@ -1,12 +1,15 @@
 const db = require('../config/db');
 
+// 产品控制器 - 匹配GR品牌SKU资料总表字段
+
 exports.getProducts = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const pageSize = Math.max(parseInt(req.query.pageSize) || 10, 1);
     const offset = (page - 1) * pageSize;
     const keyword = req.query.keyword || '';
-    const salesStatus = req.query.salesStatus || '';
+    const productStatus = req.query.productStatus || '';
+    const series = req.query.series || '';
 
     const conditions = [];
     const params = [];
@@ -29,12 +32,17 @@ exports.getProducts = async (req, res) => {
     }
 
     if (keyword) {
-      conditions.push('(p.name LIKE ? OR p.SKU LIKE ?)');
+      // 支持产品名称和SKU模糊搜索
+      conditions.push('(p.product_name LIKE ? OR p.sku LIKE ?)');
       params.push(`%${keyword}%`, `%${keyword}%`);
     }
-    if (salesStatus) {
-      conditions.push('p.sales_status = ?');
-      params.push(salesStatus);
+    if (productStatus) {
+      conditions.push('p.product_status = ?');
+      params.push(productStatus);
+    }
+    if (series) {
+      conditions.push('p.series = ?');
+      params.push(series);
     }
 
     const whereSql = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
@@ -92,61 +100,72 @@ exports.getProductById = async (req, res) => {
 exports.addProduct = async (req, res) => {
   try {
     const {
-      name, englishName, productCode, SKU, categoryL1, categoryL2,
-      productType, eanCode, usBarcode, compatibleVehicles,
-      salesStatus, costPriceRmb, retailPriceUsd, retailPriceEur, retailPriceRmb,
-      certification, patent, acquisitionMethod, color, referenceLink,
-      netWeight, grossWeight, wholeBoxWeight, unit, productSize,
-      packagingSizeMm, innerBoxSize, outerBoxSize, innerBoxQty, packingQty,
-      declareCategory, hsCode, declareNameCn, declareNameEn, declareValueUsd,
-      materialCn, materialEn, usageCn, usageEn,
-      hasBattery, hasSpecialGoods, hasMagnetism, hasNonLiquidCosmetics, isCounterfeit,
-      customsName, customsMaterial, extraInfo, accessoryInfo, extraImages, sellingPoints, sellingDetail,
-      image, desc
+      productName, sku, productCode, series, seriesCode,
+      productStatus, productImage, brandPackageImage, sellingPoints,
+      englishName, model, eanCode, hsCode, productionProcess,
+      material, color, specs, compatibleVehicles,
+      cost, cost1, suggestedPrice, suggestedPrice1, chinaRetailPrice,
+      usdPrice, eurPrice, moq, productSupplying,
+      netWeight, grossWeight, wholeBoxWeight,
+      packagingSize, innerBoxSize, outerBoxSize,
+      innerBoxQty, outerBoxQty, packingQty,
+      innerBoxSku, outerBoxSku, innerBarcode, usBarcode,
+      competitorPriceSp, competitorPriceQl, competitorPriceSpNum, competitorPriceQlNum,
+      standardConfig, packageEnglishName, remark, remark1, remark2
     } = req.body;
 
-    if (!name || !SKU) {
-      return res.status(400).json({ code: 400, message: '产品名称和SKU编号是必填项' });
+    // sku和product_name为必填项
+    if (!productName || !sku) {
+      return res.status(400).json({ code: 400, message: '产品名称和SKU是必填项' });
     }
 
     const [userRows] = await db.query('SELECT department_id FROM users WHERE id = ?', [req.user.id]);
     const deptId = userRows.length > 0 ? userRows[0].department_id : null;
 
     const sql = `INSERT INTO products (
-      name, english_name, product_code, SKU, category_l1, category_l2,
-      product_type, ean_code, us_barcode, compatible_vehicles,
-      sales_status, cost_price_rmb, retail_price_usd, retail_price_eur, retail_price_rmb,
-      certification, patent, acquisition_method, color, reference_link,
-      net_weight, gross_weight, whole_box_weight, unit, product_size,
-      packaging_size_mm, inner_box_size, outer_box_size, inner_box_qty, packing_qty,
-      declare_category, hs_code, declare_name_cn, declare_name_en, declare_value_usd,
-      material_cn, material_en, usage_cn, usage_en,
-      has_battery, has_special_goods, has_magnetism, has_non_liquid_cosmetics, is_counterfeit,
-      customs_name, customs_material, department_id, created_by,
-      extra_info, accessory_info, extra_images, selling_points, selling_detail,
-      image, description
+      product_name, sku, product_code, series, series_code,
+      product_status, product_image, brand_package_image, selling_points,
+      english_name, model, ean_code, hs_code, production_process,
+      material, color, specs, compatible_vehicles,
+      cost, cost_1, suggested_price, suggested_price_1, china_retail_price,
+      usd_price, eur_price, moq, product_supplying,
+      net_weight, gross_weight, whole_box_weight,
+      packaging_size, inner_box_size, outer_box_size,
+      inner_box_qty, outer_box_qty, packing_qty,
+      inner_box_sku, outer_box_sku, inner_barcode, us_barcode,
+      competitor_price_sp, competitor_price_ql, competitor_price_sp_num, competitor_price_ql_num,
+      standard_config, package_english_name, remark, remark_1, remark_2,
+      department_id, created_by
     ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?, ?
+      ?, ?, ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?, ?,
+      ?, ?, ?, ?, ?,
+      ?, ?
     )`;
 
     const params = [
-      name || null, englishName || null, productCode || null, SKU || null, categoryL1 || null, categoryL2 || null,
-      productType || null, eanCode || null, usBarcode || null, compatibleVehicles || null,
-      salesStatus || null, costPriceRmb || null, retailPriceUsd || null, retailPriceEur || null, retailPriceRmb || null,
-      certification || null, patent || null, acquisitionMethod || null, color || null, referenceLink || null,
-      netWeight || null, grossWeight || null, wholeBoxWeight || null, unit || null, productSize || null,
-      packagingSizeMm || null, innerBoxSize || null, outerBoxSize || null, innerBoxQty || null, packingQty || null,
-      declareCategory || null, hsCode || null, declareNameCn || null, declareNameEn || null, declareValueUsd || null,
-      materialCn || null, materialEn || null, usageCn || null, usageEn || null,
-      hasBattery || null, hasSpecialGoods || null, hasMagnetism || null, hasNonLiquidCosmetics || null, isCounterfeit || null,
-      customsName || null, customsMaterial || null, deptId, req.user.id,
-      extraInfo || null, accessoryInfo || null, extraImages || null, sellingPoints || null, sellingDetail || null,
-      image || null, desc || null
+      productName, sku, productCode || null, series || null, seriesCode || null,
+      productStatus || null, productImage || null, brandPackageImage || null, sellingPoints || null,
+      englishName || null, model || null, eanCode || null, hsCode || null, productionProcess || null,
+      material || null, color || null, specs || null, compatibleVehicles || null,
+      cost || null, cost1 || null, suggestedPrice || null, suggestedPrice1 || null, chinaRetailPrice || null,
+      usdPrice || null, eurPrice || null, moq || null, productSupplying || null,
+      netWeight || null, grossWeight || null, wholeBoxWeight || null,
+      packagingSize || null, innerBoxSize || null, outerBoxSize || null,
+      innerBoxQty || null, outerBoxQty || null, packingQty || null,
+      innerBoxSku || null, outerBoxSku || null, innerBarcode || null, usBarcode || null,
+      competitorPriceSp || null, competitorPriceQl || null, competitorPriceSpNum || null, competitorPriceQlNum || null,
+      standardConfig || null, packageEnglishName || null, remark || null, remark1 || null, remark2 || null,
+      deptId, req.user.id
     ];
 
     const [result] = await db.query(sql, params);
@@ -180,49 +199,54 @@ exports.updateProduct = async (req, res) => {
     }
 
     const {
-      name, englishName, productCode, SKU, categoryL1, categoryL2,
-      productType, eanCode, usBarcode, compatibleVehicles,
-      salesStatus, costPriceRmb, retailPriceUsd, retailPriceEur, retailPriceRmb,
-      certification, patent, acquisitionMethod, color, referenceLink,
-      netWeight, grossWeight, wholeBoxWeight, unit, productSize,
-      packagingSizeMm, innerBoxSize, outerBoxSize, innerBoxQty, packingQty,
-      declareCategory, hsCode, declareNameCn, declareNameEn, declareValueUsd,
-      materialCn, materialEn, usageCn, usageEn,
-      hasBattery, hasSpecialGoods, hasMagnetism, hasNonLiquidCosmetics, isCounterfeit,
-      customsName, customsMaterial, extraInfo, accessoryInfo, extraImages, sellingPoints, sellingDetail,
-      image, desc
+      productName, sku, productCode, series, seriesCode,
+      productStatus, productImage, brandPackageImage, sellingPoints,
+      englishName, model, eanCode, hsCode, productionProcess,
+      material, color, specs, compatibleVehicles,
+      cost, cost1, suggestedPrice, suggestedPrice1, chinaRetailPrice,
+      usdPrice, eurPrice, moq, productSupplying,
+      netWeight, grossWeight, wholeBoxWeight,
+      packagingSize, innerBoxSize, outerBoxSize,
+      innerBoxQty, outerBoxQty, packingQty,
+      innerBoxSku, outerBoxSku, innerBarcode, usBarcode,
+      competitorPriceSp, competitorPriceQl, competitorPriceSpNum, competitorPriceQlNum,
+      standardConfig, packageEnglishName, remark, remark1, remark2
     } = req.body;
 
-    if (!name || !SKU) {
-      return res.status(400).json({ code: 400, message: '产品名称和SKU编号是必填项' });
+    // sku和product_name为必填项
+    if (!productName || !sku) {
+      return res.status(400).json({ code: 400, message: '产品名称和SKU是必填项' });
     }
 
     const sql = `UPDATE products SET
-      name=?, english_name=?, product_code=?, SKU=?, category_l1=?, category_l2=?,
-      product_type=?, ean_code=?, us_barcode=?, compatible_vehicles=?,
-      sales_status=?, cost_price_rmb=?, retail_price_usd=?, retail_price_eur=?, retail_price_rmb=?,
-      certification=?, patent=?, acquisition_method=?, color=?, reference_link=?,
-      net_weight=?, gross_weight=?, whole_box_weight=?, unit=?, product_size=?,
-      packaging_size_mm=?, inner_box_size=?, outer_box_size=?, inner_box_qty=?, packing_qty=?,
-      declare_category=?, hs_code=?, declare_name_cn=?, declare_name_en=?, declare_value_usd=?,
-      material_cn=?, material_en=?, usage_cn=?, usage_en=?,
-      has_battery=?, has_special_goods=?, has_magnetism=?, has_non_liquid_cosmetics=?, is_counterfeit=?,
-      customs_name=?, customs_material=?, extra_info=?, accessory_info=?, extra_images=?, selling_points=?, selling_detail=?,
-      image=?, description=?
+      product_name=?, sku=?, product_code=?, series=?, series_code=?,
+      product_status=?, product_image=?, brand_package_image=?, selling_points=?,
+      english_name=?, model=?, ean_code=?, hs_code=?, production_process=?,
+      material=?, color=?, specs=?, compatible_vehicles=?,
+      cost=?, cost_1=?, suggested_price=?, suggested_price_1=?, china_retail_price=?,
+      usd_price=?, eur_price=?, moq=?, product_supplying=?,
+      net_weight=?, gross_weight=?, whole_box_weight=?,
+      packaging_size=?, inner_box_size=?, outer_box_size=?,
+      inner_box_qty=?, outer_box_qty=?, packing_qty=?,
+      inner_box_sku=?, outer_box_sku=?, inner_barcode=?, us_barcode=?,
+      competitor_price_sp=?, competitor_price_ql=?, competitor_price_sp_num=?, competitor_price_ql_num=?,
+      standard_config=?, package_english_name=?, remark=?, remark_1=?, remark_2=?
       WHERE id=?`;
 
     const params = [
-      name, englishName || null, productCode || null, SKU, categoryL1 || null, categoryL2 || null,
-      productType || null, eanCode || null, usBarcode || null, compatibleVehicles || null,
-      salesStatus || null, costPriceRmb || null, retailPriceUsd || null, retailPriceEur || null, retailPriceRmb || null,
-      certification || null, patent || null, acquisitionMethod || null, color || null, referenceLink || null,
-      netWeight || null, grossWeight || null, wholeBoxWeight || null, unit || null, productSize || null,
-      packagingSizeMm || null, innerBoxSize || null, outerBoxSize || null, innerBoxQty || null, packingQty || null,
-      declareCategory || null, hsCode || null, declareNameCn || null, declareNameEn || null, declareValueUsd || null,
-      materialCn || null, materialEn || null, usageCn || null, usageEn || null,
-      hasBattery || null, hasSpecialGoods || null, hasMagnetism || null, hasNonLiquidCosmetics || null, isCounterfeit || null,
-      customsName || null, customsMaterial || null, extraInfo || null, accessoryInfo || null, extraImages || null, sellingPoints || null, sellingDetail || null,
-      image || null, desc || null, id
+      productName, sku, productCode || null, series || null, seriesCode || null,
+      productStatus || null, productImage || null, brandPackageImage || null, sellingPoints || null,
+      englishName || null, model || null, eanCode || null, hsCode || null, productionProcess || null,
+      material || null, color || null, specs || null, compatibleVehicles || null,
+      cost || null, cost1 || null, suggestedPrice || null, suggestedPrice1 || null, chinaRetailPrice || null,
+      usdPrice || null, eurPrice || null, moq || null, productSupplying || null,
+      netWeight || null, grossWeight || null, wholeBoxWeight || null,
+      packagingSize || null, innerBoxSize || null, outerBoxSize || null,
+      innerBoxQty || null, outerBoxQty || null, packingQty || null,
+      innerBoxSku || null, outerBoxSku || null, innerBarcode || null, usBarcode || null,
+      competitorPriceSp || null, competitorPriceQl || null, competitorPriceSpNum || null, competitorPriceQlNum || null,
+      standardConfig || null, packageEnglishName || null, remark || null, remark1 || null, remark2 || null,
+      id
     ];
 
     const [result] = await db.query(sql, params);

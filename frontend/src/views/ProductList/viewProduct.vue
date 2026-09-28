@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="view-product" v-loading="loading">
 
     <div class="form-section">
@@ -7,93 +7,132 @@
       <div class="product-info">
         <div class="info-item">
           <div class="item-label must">产品名称</div>
-          <div class="item-value" :title="productData.name || '-'"><span>{{ productData.name || '-' }}</span></div>
+          <div class="item-value" :title="productData.product_name || '-'"><span>{{ productData.product_name || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">英文名称</div>
-          <div class="item-value" :title="productData.english_name || '-'"><span>{{ productData.english_name || '-' }}</span></div>
+          <div class="item-label must">SKU</div>
+          <div class="item-value" :title="productData.sku || '-'"><span>{{ productData.sku || '-' }}</span></div>
         </div>
         <div class="info-item">
           <div class="item-label">产品编号</div>
           <div class="item-value" :title="productData.product_code || '-'"><span>{{ productData.product_code || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label must">SKU编号</div>
-          <div class="item-value" :title="productData.SKU || '-'"><span>{{ productData.SKU || '-' }}</span></div>
+          <div class="item-label">系列</div>
+          <div class="item-value" :title="productData.series || '-'"><span>{{ productData.series || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">一级品类</div>
-          <div class="item-value" :title="productData.category_l1 || '-'"><span>{{ productData.category_l1 || '-' }}</span></div>
+          <div class="item-label">系列编号</div>
+          <div class="item-value" :title="productData.series_code || '-'"><span>{{ productData.series_code || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">二级品类</div>
-          <div class="item-value" :title="productData.category_l2 || '-'"><span>{{ productData.category_l2 || '-' }}</span></div>
+          <div class="item-label">产品状态</div>
+          <div class="item-value" :title="productData.product_status || '-'"><span>{{ productData.product_status || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">产品类型</div>
-          <div class="item-value" :title="productData.product_type || '-'"><span>{{ productData.product_type || '-' }}</span></div>
+          <div class="item-label">英文产品名称</div>
+          <div class="item-value" :title="productData.english_name || '-'"><span>{{ productData.english_name || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">EAN码</div>
-          <div class="item-value" :title="productData.ean_code || '-'"><span>{{ productData.ean_code || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">美国条形码编号</div>
-          <div class="item-value" :title="productData.us_barcode || '-'"><span>{{ productData.us_barcode || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">适配车型</div>
-          <div class="item-value" :title="productData.compatible_vehicles || '-'"><span>{{ productData.compatible_vehicles || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">销售状态</div>
-          <div class="item-value" :title="productData.sales_status || '-'"><span>{{ productData.sales_status || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">成本价RMB</div>
-          <div class="item-value" :title="productData.cost_price_rmb || '-'"><span>{{ productData.cost_price_rmb || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">建议零售价USD</div>
-          <div class="item-value" :title="productData.retail_price_usd || '-'"><span>{{ productData.retail_price_usd || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">建议零售价EUR</div>
-          <div class="item-value" :title="productData.retail_price_eur || '-'"><span>{{ productData.retail_price_eur || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">建议零售价RMB</div>
-          <div class="item-value" :title="productData.retail_price_rmb || '-'"><span>{{ productData.retail_price_rmb || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">产品认证</div>
-          <div class="item-value" :title="productData.certification || '-'"><span>{{ productData.certification || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">产品专利</div>
-          <div class="item-value" :title="productData.patent || '-'"><span>{{ productData.patent || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">取得方式</div>
-          <div class="item-value" :title="productData.acquisition_method || '-'"><span>{{ productData.acquisition_method || '-' }}</span></div>
+          <div class="item-label">型号</div>
+          <div class="item-value" :title="productData.model || '-'"><span>{{ productData.model || '-' }}</span></div>
         </div>
         <div class="info-item">
           <div class="item-label">颜色</div>
           <div class="item-value" :title="productData.color || '-'"><span>{{ productData.color || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">参考链接</div>
-          <div class="item-value" :title="productData.reference_link || '-'"><span>{{ productData.reference_link || '-' }}</span></div>
+          <div class="item-label">生产工艺</div>
+          <div class="item-value" :title="productData.production_process || '-'"><span>{{ productData.production_process || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">材料</div>
+          <div class="item-value" :title="productData.material || '-'"><span>{{ productData.material || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">适配车型</div>
+          <div class="item-value" :title="productData.compatible_vehicles || '-'"><span>{{ productData.compatible_vehicles || '-' }}</span></div>
         </div>
       </div>
     </div>
 
     <div class="form-section">
-      <div class="section-title">产品规格</div>
+      <div class="section-title">价格信息</div>
 
       <div class="product-info">
         <div class="info-item">
-          <div class="item-label">净重KG</div>
+          <div class="item-label">中国零售价</div>
+          <div class="item-value" :title="productData.china_retail_price || '-'"><span>{{ productData.china_retail_price || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">美国（USD）</div>
+          <div class="item-value" :title="productData.usd_price || '-'"><span>{{ productData.usd_price || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">欧洲（€）</div>
+          <div class="item-value" :title="productData.eur_price || '-'"><span>{{ productData.eur_price || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">建议销售价</div>
+          <div class="item-value" :title="productData.suggested_price || '-'"><span>{{ productData.suggested_price || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">建议销售价（1）</div>
+          <div class="item-value" :title="productData.suggested_price_1 || '-'"><span>{{ productData.suggested_price_1 || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">成本</div>
+          <div class="item-value" :title="productData.cost || '-'"><span>{{ productData.cost || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">成本（1）</div>
+          <div class="item-value" :title="productData.cost_1 || '-'"><span>{{ productData.cost_1 || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">MOQ</div>
+          <div class="item-value" :title="productData.moq || '-'"><span>{{ productData.moq || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美（sp）</div>
+          <div class="item-value" :title="productData.competitor_price_sp || '-'"><span>{{ productData.competitor_price_sp || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美（quadlock）</div>
+          <div class="item-value" :title="productData.competitor_price_ql || '-'"><span>{{ productData.competitor_price_ql || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美：SP</div>
+          <div class="item-value" :title="productData.competitor_price_sp_num || '-'"><span>{{ productData.competitor_price_sp_num || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">海外竞对参考价-美：ql</div>
+          <div class="item-value" :title="productData.competitor_price_ql_num || '-'"><span>{{ productData.competitor_price_ql_num || '-' }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">规格参数</div>
+
+      <div class="product-info">
+        <div class="info-item">
+          <div class="item-label">产品卖点</div>
+          <div class="item-value" :title="productData.selling_points || '-'"><span>{{ productData.selling_points || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">规格参数</div>
+          <div class="item-value" :title="productData.specs || '-'"><span>{{ productData.specs || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">标准配置</div>
+          <div class="item-value" :title="productData.standard_config || '-'"><span>{{ productData.standard_config || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">产品包装英文名称</div>
+          <div class="item-value" :title="productData.package_english_name || '-'"><span>{{ productData.package_english_name || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">产品净重KG</div>
           <div class="item-value" :title="productData.net_weight || '-'"><span>{{ productData.net_weight || '-' }}</span></div>
         </div>
         <div class="info-item">
@@ -105,23 +144,22 @@
           <div class="item-value" :title="productData.whole_box_weight || '-'"><span>{{ productData.whole_box_weight || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">产品单位</div>
-          <div class="item-value" :title="productData.unit || '-'"><span>{{ productData.unit || '-' }}</span></div>
+          <div class="item-label">包装规格MM</div>
+          <div class="item-value" :title="productData.packaging_size || '-'"><span>{{ productData.packaging_size || '-' }}</span></div>
         </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">包装信息</div>
+
+      <div class="product-info">
         <div class="info-item">
-          <div class="item-label">产品尺寸</div>
-          <div class="item-value" :title="productData.product_size || '-'"><span>{{ productData.product_size || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">包装尺寸MM</div>
-          <div class="item-value" :title="productData.packaging_size_mm || '-'"><span>{{ productData.packaging_size_mm || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">内小箱MM</div>
+          <div class="item-label">内小箱规格MM</div>
           <div class="item-value" :title="productData.inner_box_size || '-'"><span>{{ productData.inner_box_size || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">外大箱MM</div>
+          <div class="item-label">外大箱规格MM</div>
           <div class="item-value" :title="productData.outer_box_size || '-'"><span>{{ productData.outer_box_size || '-' }}</span></div>
         </div>
         <div class="info-item">
@@ -129,8 +167,24 @@
           <div class="item-value" :title="productData.inner_box_qty || '-'"><span>{{ productData.inner_box_qty || '-' }}</span></div>
         </div>
         <div class="info-item">
+          <div class="item-label">外箱装箱数量</div>
+          <div class="item-value" :title="productData.outer_box_qty || '-'"><span>{{ productData.outer_box_qty || '-' }}</span></div>
+        </div>
+        <div class="info-item">
           <div class="item-label">装箱数量</div>
           <div class="item-value" :title="productData.packing_qty || '-'"><span>{{ productData.packing_qty || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">内箱SKU代码ICS</div>
+          <div class="item-value" :title="productData.inner_box_sku || '-'"><span>{{ productData.inner_box_sku || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">外箱SKU代码MCS</div>
+          <div class="item-value" :title="productData.outer_box_sku || '-'"><span>{{ productData.outer_box_sku || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">内纸箱条形码ICB</div>
+          <div class="item-value" :title="productData.inner_barcode || '-'"><span>{{ productData.inner_barcode || '-' }}</span></div>
         </div>
       </div>
     </div>
@@ -140,131 +194,75 @@
 
       <div class="product-info">
         <div class="info-item">
-          <div class="item-label">申报品类</div>
-          <div class="item-value" :title="productData.declare_category || '-'"><span>{{ productData.declare_category || '-' }}</span></div>
+          <div class="item-label">EAN码</div>
+          <div class="item-value" :title="productData.ean_code || '-'"><span>{{ productData.ean_code || '-' }}</span></div>
         </div>
         <div class="info-item">
           <div class="item-label">海关编码</div>
           <div class="item-value" :title="productData.hs_code || '-'"><span>{{ productData.hs_code || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">中文申报品名</div>
-          <div class="item-value" :title="productData.declare_name_cn || '-'"><span>{{ productData.declare_name_cn || '-' }}</span></div>
+          <div class="item-label">美国条形码编号</div>
+          <div class="item-value" :title="productData.us_barcode || '-'"><span>{{ productData.us_barcode || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">英文申报品名</div>
-          <div class="item-value" :title="productData.declare_name_en || '-'"><span>{{ productData.declare_name_en || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">申报价值USD</div>
-          <div class="item-value" :title="productData.declare_value_usd || '-'"><span>{{ productData.declare_value_usd || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">中文材质</div>
-          <div class="item-value" :title="productData.material_cn || '-'"><span>{{ productData.material_cn || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">英文材质</div>
-          <div class="item-value" :title="productData.material_en || '-'"><span>{{ productData.material_en || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">中文用途</div>
-          <div class="item-value" :title="productData.usage_cn || '-'"><span>{{ productData.usage_cn || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">英文用途</div>
-          <div class="item-value" :title="productData.usage_en || '-'"><span>{{ productData.usage_en || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">是否包含电池</div>
-          <div class="item-value" :title="productData.has_battery || '-'"><span>{{ productData.has_battery || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">是否包含特货</div>
-          <div class="item-value" :title="productData.has_special_goods || '-'"><span>{{ productData.has_special_goods || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">是否带磁</div>
-          <div class="item-value" :title="productData.has_magnetism || '-'"><span>{{ productData.has_magnetism || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">是否含非液体化妆品</div>
-          <div class="item-value" :title="productData.has_non_liquid_cosmetics || '-'"><span>{{ productData.has_non_liquid_cosmetics || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">是否为仿制品</div>
-          <div class="item-value" :title="productData.is_counterfeit || '-'"><span>{{ productData.is_counterfeit || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">报关名称</div>
-          <div class="item-value" :title="productData.customs_name || '-'"><span>{{ productData.customs_name || '-' }}</span></div>
-        </div>
-        <div class="info-item">
-          <div class="item-label">报关专用材质</div>
-          <div class="item-value" :title="productData.customs_material || '-'"><span>{{ productData.customs_material || '-' }}</span></div>
+          <div class="item-label">产品供应中</div>
+          <div class="item-value" :title="productData.product_supplying || '-'"><span>{{ productData.product_supplying || '-' }}</span></div>
         </div>
       </div>
     </div>
 
     <div class="form-section">
-      <div class="section-title">附加信息</div>
+      <div class="section-title">备注</div>
+
+      <div class="product-info">
+        <div class="info-item">
+          <div class="item-label">备注</div>
+          <div class="item-value" :title="productData.remark || '-'"><span>{{ productData.remark || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">备注（1）</div>
+          <div class="item-value" :title="productData.remark_1 || '-'"><span>{{ productData.remark_1 || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">备注（2）</div>
+          <div class="item-value" :title="productData.remark_2 || '-'"><span>{{ productData.remark_2 || '-' }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">产品图片</div>
 
       <div class="extra-tabs">
         <div class="extra-tabs-nav">
           <div
-            v-for="tab in extraTabList"
+            v-for="tab in imageTabList"
             :key="tab.key"
             class="extra-tab-item"
-            :class="{ active: activeExtraTab === tab.key }"
-            @click="activeExtraTab = tab.key"
+            :class="{ active: activeImageTab === tab.key }"
+            @click="activeImageTab = tab.key"
           >
             {{ tab.label }}
           </div>
         </div>
 
-        <div v-if="activeExtraTab === 'extra'" class="extra-tab-content">
-          <div class="plain-text">{{ productData.extra_info || '暂无附加信息' }}</div>
-        </div>
-
-        <div v-if="activeExtraTab === 'images'" class="extra-tab-content">
-          <div v-if="extraImages.length > 0" class="extra-image-list">
-            <div v-for="(url, idx) in extraImages" :key="idx" class="extra-image-item">
-              <img :src="baseURL + url" alt="" />
+        <div v-if="activeImageTab === 'product'" class="extra-tab-content">
+          <div v-if="productImages.length > 0" class="extra-image-list">
+            <div v-for="(url, idx) in productImages" :key="idx" class="extra-image-item">
+              <img :src="resolveImageUrl(url)" alt="" />
             </div>
           </div>
-          <div v-else class="plain-text">暂无图片</div>
+          <div v-else class="plain-text">暂无产品图片</div>
         </div>
 
-        <div v-if="activeExtraTab === 'accessory'" class="extra-tab-content">
-          <div class="plain-text">{{ productData.accessory_info || '暂无配件信息' }}</div>
-        </div>
-
-        <div v-if="activeExtraTab === 'selling'" class="extra-tab-content">
-          <el-table :data="sellingPoints" border style="width: 100%">
-            <el-table-column label="序号" width="60" align="center">
-              <template #default="{ $index }">{{ $index + 1 }}</template>
-            </el-table-column>
-            <el-table-column label="卖点" min-width="120">
-              <template #default="{ row }">{{ row.point || '-' }}</template>
-            </el-table-column>
-            <el-table-column label="产品属性F（Feature）" min-width="200">
-              <template #default="{ row }">{{ row.feature || '-' }}</template>
-            </el-table-column>
-            <el-table-column label="产品优势A（Advantage）" min-width="200">
-              <template #default="{ row }">{{ row.advantage || '-' }}</template>
-            </el-table-column>
-            <el-table-column label="用户利益B（Benefit）" min-width="200">
-              <template #default="{ row }">{{ row.benefit || '-' }}</template>
-            </el-table-column>
-            <el-table-column label="总结" min-width="200">
-              <template #default="{ row }">{{ row.summary || '-' }}</template>
-            </el-table-column>
-          </el-table>
-        </div>
-
-        <div v-if="activeExtraTab === 'detail'" class="extra-tab-content">
-          <div v-if="productData.selling_detail" class="plain-text" v-html="productData.selling_detail"></div>
-          <div v-else class="plain-text">暂无卖点详情</div>
+        <div v-if="activeImageTab === 'brand'" class="extra-tab-content">
+          <div v-if="brandImages.length > 0" class="extra-image-list">
+            <div v-for="(url, idx) in brandImages" :key="idx" class="extra-image-item">
+              <img :src="resolveImageUrl(url)" alt="" />
+            </div>
+          </div>
+          <div v-else class="plain-text">暂无品牌包装图片</div>
         </div>
       </div>
     </div>
@@ -279,70 +277,86 @@ import request, { baseURL } from '@/utils/request'
 const route = useRoute()
 const loading = ref(false)
 
-const activeExtraTab = ref('extra')
-const extraTabList = [
-  { label: '产品信息', key: 'extra' },
-  { label: '产品图片', key: 'images' },
-  { label: '产品规格/配件', key: 'accessory' },
-  { label: '产品卖点', key: 'selling' },
-  { label: '卖点详情', key: 'detail' }
+const activeImageTab = ref('product')
+const imageTabList = [
+  { label: '产品图片', key: 'product' },
+  { label: '品牌包装图片', key: 'brand' }
 ]
 
 const productData = reactive({
-  name: '',
-  english_name: '',
+  product_name: '',
+  sku: '',
   product_code: '',
-  SKU: '',
-  category_l1: '',
-  category_l2: '',
-  product_type: '',
-  ean_code: '',
-  us_barcode: '',
-  compatible_vehicles: '',
-  sales_status: '',
-  cost_price_rmb: '',
-  retail_price_usd: '',
-  retail_price_eur: '',
-  retail_price_rmb: '',
-  certification: '',
-  patent: '',
-  acquisition_method: '',
+  series: '',
+  series_code: '',
+  product_status: '',
+  english_name: '',
+  model: '',
   color: '',
-  reference_link: '',
+  production_process: '',
+  material: '',
+  compatible_vehicles: '',
+  china_retail_price: '',
+  usd_price: '',
+  eur_price: '',
+  suggested_price: '',
+  suggested_price_1: '',
+  cost: '',
+  cost_1: '',
+  moq: '',
+  competitor_price_sp: '',
+  competitor_price_ql: '',
+  competitor_price_sp_num: '',
+  competitor_price_ql_num: '',
+  selling_points: '',
+  specs: '',
+  standard_config: '',
+  package_english_name: '',
   net_weight: '',
   gross_weight: '',
   whole_box_weight: '',
-  unit: '',
-  product_size: '',
-  packaging_size_mm: '',
+  packaging_size: '',
   inner_box_size: '',
   outer_box_size: '',
   inner_box_qty: '',
+  outer_box_qty: '',
   packing_qty: '',
-  declare_category: '',
+  inner_box_sku: '',
+  outer_box_sku: '',
+  inner_barcode: '',
+  ean_code: '',
   hs_code: '',
-  declare_name_cn: '',
-  declare_name_en: '',
-  declare_value_usd: '',
-  material_cn: '',
-  material_en: '',
-  usage_cn: '',
-  usage_en: '',
-  has_battery: '',
-  has_special_goods: '',
-  has_magnetism: '',
-  has_non_liquid_cosmetics: '',
-  is_counterfeit: '',
-  customs_name: '',
-  customs_material: '',
-  extra_info: '',
-  accessory_info: '',
-  selling_detail: '',
-  image: ''
+  us_barcode: '',
+  product_supplying: '',
+  remark: '',
+  remark_1: '',
+  remark_2: '',
+  product_image: '',
+  brand_package_image: ''
 })
 
-const sellingPoints = ref<any[]>([])
-const extraImages = ref<string[]>([])
+const productImages = ref<string[]>([])
+const brandImages = ref<string[]>([])
+
+const resolveImageUrl = (url: string) => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) return url
+  return baseURL + url
+}
+
+const parseImageField = (value: any): string[] => {
+  if (!value) return []
+  if (Array.isArray(value)) return value.filter(Boolean)
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) return parsed.filter(Boolean)
+    } catch {
+      return value.split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+  }
+  return []
+}
 
 const fetchProductDetail = async () => {
   const id = route.query.id
@@ -354,22 +368,8 @@ const fetchProductDetail = async () => {
     if (res.data.code === 200 && res.data.data) {
       const data = res.data.data
       Object.assign(productData, data)
-      if (data.selling_points) {
-        try {
-          const parsed = JSON.parse(data.selling_points)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            sellingPoints.value = parsed
-          }
-        } catch { }
-      }
-      if (data.extra_images) {
-        try {
-          const parsed = JSON.parse(data.extra_images)
-          if (Array.isArray(parsed)) {
-            extraImages.value = parsed
-          }
-        } catch { }
-      }
+      productImages.value = parseImageField(data.product_image)
+      brandImages.value = parseImageField(data.brand_package_image)
     }
   } catch (error) {
     console.error('获取产品详情失败', error)
@@ -510,7 +510,7 @@ onMounted(() => {
   .extra-tab-content {
     padding: 20px;
     background: #fff;
-    min-height: 400px;
+    min-height: 200px;
   }
 }
 
@@ -528,9 +528,9 @@ onMounted(() => {
 }
 
 .extra-image-item {
-  width: 80px;
-  height: 80px;
-  border-radius: 4px;
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid #e2e8f0;
 

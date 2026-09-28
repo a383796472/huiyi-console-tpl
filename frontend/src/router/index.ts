@@ -25,6 +25,12 @@ const routes = [
         meta: { title: '产品管理', requiresAuth: true }
       },
       {
+        path: 'tasks',
+        name: 'Tasks',
+        component: () => import('../views/tasks/index.vue'),
+        meta: { title: '任务管理', requiresAuth: true }
+      },
+      {
         path: 'creatProduct',
         name: 'CreatProduct',
         component: () => import('../views/ProductList/creatProduct.vue'),
@@ -59,6 +65,18 @@ const routes = [
         name: 'Inventory',
         component: () => import('../views/inventory/index.vue'),
         meta: { title: '库存管理', requiresAuth: true }
+      },
+      {
+        path: 'orders',
+        name: 'Orders',
+        component: () => import('../views/orders/index.vue'),
+        meta: { title: '订单管理', requiresAuth: true }
+      },
+      {
+        path: 'logistics',
+        name: 'Logistics',
+        component: () => import('../views/logistics/index.vue'),
+        meta: { title: '物流管理', requiresAuth: true }
       },
     ]
   },

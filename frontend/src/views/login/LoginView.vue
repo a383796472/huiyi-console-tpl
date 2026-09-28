@@ -6,7 +6,7 @@
           <div class="left-logo">
             <img src="../../assets/huiyi-logo.webp" alt="徽一 logo" />
           </div>
-          <h2 class="left-title">徽一产品档案库</h2>
+          <h2 class="left-title">硕为数据管理系统</h2>
         </div>
       </div>
       <div class="login-right">

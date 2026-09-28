@@ -31,9 +31,12 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.use('/uploads', express.statireq.user.username}(${req.user.id})` : '未认证';
+const logOperation = (req, action) => {
+  const user = req.user ? `${req.user.username}(${req.user.id})` : '未认证';
   console.log(`📝 [操作日志] ${user} ${action} ${req.method} ${req.originalUrl}`);
 };
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 登录接口
 app.post('/api/login', (req, res, next) => {
@@ -67,6 +70,10 @@ app.use('/api/departments', departmentsRoutes);
 // 挂载抖店路由
 const douyinRoutes = require('./routes/douyin.routes');
 app.use('/api/douyin', douyinRoutes);
+
+// 挂载任务管理路由
+const taskRoutes = require('./routes/tasks.routes');
+app.use('/api/tasks', taskRoutes);
 
 // 健康检查
 app.get('/api/health', (_req, res) => {

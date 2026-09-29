@@ -22,7 +22,7 @@
             <el-form-item prop="username">
               <el-input
                 v-model="loginForm.username"
-                placeholder="请输入用户名"
+                placeholder="请输入用户名或邮箱"
                 :prefix-icon="User"
                 size="large"
               />
@@ -73,7 +73,7 @@ const loginForm = reactive({
 
 const loginRules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
+    { required: true, message: '请输入用户名或邮箱', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' }
@@ -104,7 +104,7 @@ const handleLogin = async () => {
       ElMessage.success('登录成功！')
       router.push('/')
     } else {
-      ElMessage.error(res.data?.message || '登录失败，用户名或密码错误')
+      ElMessage.error(res.data?.message || '登录失败，用户名/邮箱或密码错误')
     }
   } catch (error: any) {
     console.error('登录请求出错：', error)
@@ -113,7 +113,7 @@ const handleLogin = async () => {
     } else if (error.response) {
       const status = error.response.status
       if (status === 401) {
-        ElMessage.error('用户名或密码错误')
+        ElMessage.error('用户名/邮箱或密码错误')
       } else if (status === 404) {
         ElMessage.error('登录接口不存在，请检查后端配置')
       } else {
@@ -122,7 +122,7 @@ const handleLogin = async () => {
     } else if (error.code === 'ECONNABORTED') {
       ElMessage.error('请求超时，请检查网络连接')
     } else {
-      ElMessage.error('登录失败，请检查用户名和密码')
+      ElMessage.error('登录失败，请检查用户名/邮箱和密码')
     }
   } finally {
     isLoading.value = false

@@ -18,18 +18,24 @@ exports.login = async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ code: 400, message: '用户名和密码不能为空' });
+      return res.status(400).json({ code: 400, message: '用户名/邮箱和密码不能为空' });
     }
 
-    const [rows] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+    // 支持用户名或邮箱登录（email 未设唯一约束，可能存在多条匹配）
+    const [rows] = await db.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, username]);
     if (rows.length === 0) {
-      return res.status(401).json({ code: 401, message: '用户名或密码错误' });
+      return res.status(401).json({ code: 401, message: '用户名/邮箱或密码错误' });
     }
 
-    const user = rows[0];
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ code: 401, message: '用户名或密码错误' });
+    let user = null;
+    for (const row of rows) {
+      if (await bcrypt.compare(password, row.password)) {
+        user = row;
+        break;
+      }
+    }
+    if (!user) {
+      return res.status(401).json({ code: 401, message: '用户名/邮箱或密码错误' });
     }
 
     if (user.status === 0) {

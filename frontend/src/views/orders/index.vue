@@ -3,10 +3,11 @@
     <div class="search-area">
       <el-input
         v-model="searchKeyword"
-        placeholder="请输入订单号或客户名称搜索"
+        placeholder="订单号 / 客户 / 买家账号 / 物流单号"
         class="search-input"
         clearable
         @keyup.enter="handleSearch"
+        @clear="handleSearch"
       >
         <template #append>
           <el-button @click="handleSearch">
@@ -17,38 +18,76 @@
           </el-button>
         </template>
       </el-input>
-      <el-select v-model="orderStatus" placeholder="订单状态" clearable class="status-select" @change="handleSearch">
-        <el-option label="全部" value="" />
-        <el-option label="待付款" value="pending" />
-        <el-option label="待发货" value="paid" />
-        <el-option label="已发货" value="shipped" />
-        <el-option label="已完成" value="completed" />
+      <el-select v-model="platformFilter" placeholder="平台" clearable class="status-select" @change="handleSearch">
+        <el-option v-for="(label, value) in PLATFORM_LABELS" :key="value" :label="label" :value="value" />
       </el-select>
+      <el-select v-model="statusFilter" placeholder="订单状态" clearable class="status-select" @change="handleSearch">
+        <el-option v-for="(label, value) in STATUS_LABELS" :key="value" :label="label" :value="value" />
+      </el-select>
+      <el-select v-model="countedFilter" placeholder="计入业绩" clearable class="status-select" @change="handleSearch">
+        <el-option label="计入" value="1" />
+        <el-option label="不计入" value="0" />
+      </el-select>
+      <el-date-picker
+        v-model="dateRange"
+        type="daterange"
+        range-separator="至"
+        start-placeholder="下单开始日期"
+        end-placeholder="下单结束日期"
+        value-format="YYYY-MM-DD"
+        class="date-picker"
+        @change="handleSearch"
+      />
     </div>
 
     <div class="table-container">
-      <el-table :data="tableData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="orderNo" label="订单号" min-width="160">
-          <template #default="{ row }">{{ row.orderNo || '-' }}</template>
+      <el-table :data="tableData" style="width: 100%" v-loading="loading" @row-click="goDetail">
+        <el-table-column label="平台" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="platformTagType(row.platform)" effect="light">{{ PLATFORM_LABELS[row.platform] || row.platform }}</el-tag>
+          </template>
         </el-table-column>
-        <el-table-column prop="customer" label="客户名称" min-width="140">
-          <template #default="{ row }">{{ row.customer || '-' }}</template>
+        <el-table-column prop="order_no" label="订单号" min-width="150" show-overflow-tooltip>
+          <template #default="{ row }">{{ row.order_no || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="amount" label="订单金额" min-width="120" align="right">
-          <template #default="{ row }">{{ row.amount ?? '-' }}</template>
+        <el-table-column prop="buyer_name" label="客户 / 收件人" min-width="130" show-overflow-tooltip>
+          <template #default="{ row }">{{ row.buyer_name || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="status" label="订单状态" min-width="110" align="center">
-          <template #default="{ row }">{{ row.status || '-' }}</template>
+        <el-table-column prop="item_count" label="件数" width="80" align="right">
+          <template #default="{ row }">{{ row.item_count ?? '-' }}</template>
         </el-table-column>
-        <el-table-column prop="created_at" label="下单时间" min-width="160">
-          <template #default="{ row }">{{ row.created_at || '-' }}</template>
+        <el-table-column label="订单金额" min-width="110" align="right">
+          <template #default="{ row }">{{ formatAmount(row.total_amount, row.currency) }}</template>
+        </el-table-column>
+        <el-table-column label="实付金额" min-width="110" align="right">
+          <template #default="{ row }">{{ formatAmount(row.paid_amount, row.currency) }}</template>
+        </el-table-column>
+        <el-table-column label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="statusTagType(row.status_code)" :effect="row.status_code === 'shipped' ? 'plain' : 'light'">
+              {{ STATUS_LABELS[row.status_code] || row.order_status || '未知' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="计入业绩" width="95" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.is_counted ? 'success' : 'info'" effect="plain">{{ row.is_counted ? '是' : '否' }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="下单时间" min-width="160">
+          <template #default="{ row }">{{ formatTime(row.order_time) }}</template>
+        </el-table-column>
+        <el-table-column label="操作" width="80" align="center" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" size="small" @click.stop="goDetail(row)">详情</el-button>
+          </template>
         </el-table-column>
       </el-table>
 
       <div class="table-page">
         <el-pagination
           background
-          layout="prev, pager, next"
+          layout="total, prev, pager, next"
           :total="total"
           :page-size="pageSize"
           :current-page="currentPage"
@@ -60,7 +99,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { getOrderList, PLATFORM_LABELS, STATUS_LABELS } from '@/api/order'
+
+const router = useRouter()
 
 const loading = ref(false)
 const tableData = ref<any[]>([])
@@ -68,15 +111,85 @@ const total = ref(0)
 const pageSize = ref(10)
 const currentPage = ref(1)
 const searchKeyword = ref('')
-const orderStatus = ref('')
+const platformFilter = ref('')
+const statusFilter = ref('')
+const countedFilter = ref('')
+const dateRange = ref<[string, string] | ''>('')
+
+const fetchList = async () => {
+  loading.value = true
+  try {
+    const { data: res } = await getOrderList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: searchKeyword.value || undefined,
+      platform: platformFilter.value || undefined,
+      statusCode: statusFilter.value || undefined,
+      isCounted: countedFilter.value || undefined,
+      startDate: (dateRange.value && dateRange.value[0]) || undefined,
+      endDate: (dateRange.value && dateRange.value[1]) || undefined
+    })
+    if (res.code === 200) {
+      tableData.value = res.data.list
+      total.value = res.data.total
+    }
+  } finally {
+    loading.value = false
+  }
+}
 
 const handleSearch = () => {
   currentPage.value = 1
+  fetchList()
 }
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
+  fetchList()
 }
+
+const goDetail = (row: any) => {
+  router.push(`/orders/${row.id}`)
+}
+
+const platformTagType = (platform: string) => {
+  const map: Record<string, string> = {
+    shopify: 'success',
+    jushuitan: 'warning',
+    tmall: 'danger',
+    alibaba1688: 'primary'
+  }
+  return (map[platform] || 'info') as any
+}
+
+const statusTagType = (code: string) => {
+  const map: Record<string, string> = {
+    pending: 'warning',
+    paid: 'primary',
+    shipped: 'primary',
+    completed: 'success',
+    cancelled: 'danger',
+    other: 'info'
+  }
+  return (map[code] || 'info') as any
+}
+
+const currencySymbol = (currency: string | null) =>
+  currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '¥'
+
+const formatAmount = (amount: any, currency: string | null) => {
+  if (amount === null || amount === undefined || amount === '') return '-'
+  return `${currencySymbol(currency)}${Number(amount).toFixed(2)}`
+}
+
+const formatTime = (time: string | null) => {
+  if (!time) return '-'
+  const d = new Date(time)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+
+onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
@@ -84,7 +197,7 @@ const handlePageChange = (page: number) => {
   background: #fff;
   padding: 24px;
   border-radius: 18px;
-  height: 100%;
+  min-height: calc(100vh - 180px);
   display: flex;
   flex-direction: column;
   box-shadow:
@@ -106,6 +219,10 @@ const handlePageChange = (page: number) => {
 
   .status-select {
     width: 130px;
+  }
+
+  .date-picker {
+    width: 260px;
   }
 
   :deep(.el-input-group) {
@@ -160,6 +277,14 @@ const handlePageChange = (page: number) => {
       box-shadow: 0 0 0 1px #60a5fa inset;
     }
   }
+
+  :deep(.el-date-editor) {
+    border-radius: 12px;
+
+    .el-range-input {
+      font-size: 13px;
+    }
+  }
 }
 
 .table-container {
@@ -184,6 +309,10 @@ const handlePageChange = (page: number) => {
     td.el-table__cell {
       color: #334155;
       font-size: 14px;
+    }
+
+    .el-table__row {
+      cursor: pointer;
     }
 
     .el-table__row:hover > td {

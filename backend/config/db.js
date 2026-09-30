@@ -1,4 +1,16 @@
 // config/db.js
+// 本地开发 / 独立脚本无环境变量时，兜底读取 backend/.env（不覆盖已有变量；
+// 生产 PM2 在 ecosystem.config.js 中显式注入 DB_*，优先级更高）
+if (!process.env.DB_USER) {
+  try {
+    const envText = require('fs').readFileSync(require('path').join(__dirname, '..', '.env'), 'utf8');
+    for (const line of envText.split(/\r?\n/)) {
+      const m = line.match(/^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/);
+      if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2];
+    }
+  } catch (_) { /* .env 不存在则走下方默认值 */ }
+}
+
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({

@@ -231,7 +231,7 @@ const handleLogin = async () => {
       font-size: 26px;
       font-weight: 700;
       color: #0f172a;
-      margin: 0 0 8px;
+      margin: 0 0 28px;
       letter-spacing: -0.5px;
     }
 

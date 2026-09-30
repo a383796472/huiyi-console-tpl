@@ -75,6 +75,10 @@ app.use('/api/douyin', douyinRoutes);
 const taskRoutes = require('./routes/tasks.routes');
 app.use('/api/tasks', taskRoutes);
 
+// 挂载订单中心路由
+const orderRoutes = require('./routes/orders.routes');
+app.use('/api/orders', orderRoutes);
+
 // 健康检查
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

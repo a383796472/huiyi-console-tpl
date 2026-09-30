@@ -73,6 +73,12 @@ const routes = [
         meta: { title: '订单管理', requiresAuth: true }
       },
       {
+        path: 'orders/:id',
+        name: 'OrderDetail',
+        component: () => import('../views/orders/detail.vue'),
+        meta: { title: '订单详情', requiresAuth: true }
+      },
+      {
         path: 'logistics',
         name: 'Logistics',
         component: () => import('../views/logistics/index.vue'),

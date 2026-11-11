@@ -20,8 +20,8 @@ router.get('/', verifyToken, userController.getUsers);
 // 获取单个用户详情
 router.get('/:id', verifyToken, userController.getUserById);
 
-// 创建用户（仅超级管理员）
-router.post('/', verifyToken, requireRole('super_admin'), userController.createUser);
+// 创建用户（超管 / 管理员 / 部门管理员，范围由控制器校验）
+router.post('/', verifyToken, userController.createUser);
 
 // 更新用户信息
 router.put('/:id', verifyToken, userController.updateUser);

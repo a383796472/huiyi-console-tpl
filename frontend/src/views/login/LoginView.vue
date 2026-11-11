@@ -4,14 +4,21 @@
       <div class="login-left">
         <div class="left-content">
           <div class="left-logo">
-            <img src="../../assets/huiyi-logo.webp" alt="徽一 logo" />
+            <img src="../../assets/huiyi-logo.webp" alt="广州集客电子科技有限公司 logo" />
           </div>
-          <h2 class="left-title">硕为数据管理系统</h2>
+          <h2 class="left-title">广州集客电子<span class="title-dot">·</span>业务管理平台</h2>
+          <p class="left-desc">产品 · 订单 · 物流，一站式协同管理</p>
         </div>
+        <p class="left-footer">
+          © 2026 广州集客电子科技有限公司<br />
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">粤ICP备2026175553号-1</a>
+        </p>
       </div>
+
       <div class="login-right">
         <div class="right-content">
           <h3 class="right-title">欢迎登录</h3>
+          <p class="right-subtitle">请使用您的账号登录管理系统</p>
           <el-form
             ref="formRef"
             :model="loginForm"
@@ -98,7 +105,10 @@ const handleLogin = async () => {
       const userInfo = {
         id: user.id,
         username: user.username,
-        role: user.role
+        real_name: user.real_name || '',
+        role: user.role,
+        department_id: user.department_id ?? null,
+        department_name: user.department_name || ''
       }
       localStorage.setItem('userInfo', JSON.stringify(userInfo))
       ElMessage.success('登录成功！')
@@ -131,67 +141,118 @@ const handleLogin = async () => {
 </script>
 
 <style lang="scss" scoped>
+$brand: #3b82f6;
+$brand-light: #60a5fa;
+$ink: #0f172a;
+$line: #e2e8f0;
+
 .login-container {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.18), transparent 50%),
-    radial-gradient(ellipse at 75% 20%, rgba(96, 165, 250, 0.12), transparent 50%),
-    linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-}
-
-.login-card {
-  display: flex;
-  width: 880px;
-  height: 520px;
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 24px;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.08),
-    0 40px 80px rgba(15, 23, 42, 0.24);
+  padding: 24px;
+  box-sizing: border-box;
   overflow: hidden;
-  backdrop-filter: blur(20px);
-}
+  background: linear-gradient(135deg, #0b1220 0%, #131f36 50%, #0b1220 100%);
 
-.login-left {
-  width: 400px;
-  background:
-    radial-gradient(circle at top right, rgba(59, 130, 246, 0.4), transparent 60%),
-    linear-gradient(160deg, #1e293b 0%, #334155 70%, #475569 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-
-  &::after {
+  // 背景光晕
+  &::before {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3), transparent 50%),
-      radial-gradient(circle at 20% 80%, rgba(96, 165, 250, 0.2), transparent 50%);
+      radial-gradient(48rem 32rem at 12% 18%, rgba(59, 130, 246, 0.3), transparent 62%),
+      radial-gradient(42rem 30rem at 88% 82%, rgba(96, 165, 250, 0.22), transparent 62%);
+    animation: auraDrift 18s ease-in-out infinite alternate;
+  }
+
+  // 背景网格
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 62% at 50% 45%, #000 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(70% 62% at 50% 45%, #000 0%, transparent 100%);
+  }
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 880px;
+  max-width: 100%;
+  height: 520px;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow:
+    0 32px 64px -18px rgba(2, 8, 23, 0.6),
+    0 1px 2px rgba(15, 23, 42, 0.12);
+  animation: cardIn 0.5s ease both;
+}
+
+.login-left {
+  position: relative;
+  width: 400px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1f2a44 0%, #25324f 58%, #182033 100%);
+
+  // 品牌光晕
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 78% 14%, rgba(59, 130, 246, 0.4), transparent 55%),
+      radial-gradient(circle at 14% 88%, rgba(96, 165, 250, 0.24), transparent 55%);
+  }
+
+  // 点阵质感
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.5;
+    mask-image: radial-gradient(78% 70% at 50% 38%, #000 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(78% 70% at 50% 38%, #000 0%, transparent 100%);
   }
 
   .left-content {
-    text-align: center;
-    padding: 48px;
     position: relative;
     z-index: 1;
+    width: 100%;
+    text-align: center;
 
     .left-logo {
-      width: 88px;
-      height: 88px;
-      margin: 0 auto 28px;
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 20px;
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 26px;
+      padding: 15px;
+      box-sizing: border-box;
+      background: #fff;
+      border-radius: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.6),
+        0 18px 36px -12px rgba(2, 8, 23, 0.6),
+        0 0 0 10px rgba(59, 130, 246, 0.1);
 
       img {
         width: 100%;
@@ -201,27 +262,62 @@ const handleLogin = async () => {
     }
 
     .left-title {
-      font-size: 24px;
+      font-size: 22px;
+      line-height: 1.45;
       font-weight: 700;
       color: #fff;
-      margin: 0 0 10px;
-      letter-spacing: 1px;
+      margin: 0;
+      letter-spacing: 0.5px;
+      text-wrap: balance;
+
+      .title-dot {
+        color: $brand-light;
+        margin: 0 2px;
+      }
     }
 
     .left-desc {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      margin: 0;
-      line-height: 1.6;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.62);
+      margin: 14px 0 0;
+      line-height: 1.7;
+      letter-spacing: 0.2px;
+    }
+  }
+
+  .left-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    z-index: 1;
+    margin: 0;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.35);
+    line-height: 1.9;
+
+    a {
+      color: rgba(255, 255, 255, 0.42);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: rgba(255, 255, 255, 0.85);
+      }
     }
   }
 }
 
 .login-right {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 48px;
   background: #fff;
 
   .right-content {
@@ -230,39 +326,40 @@ const handleLogin = async () => {
     .right-title {
       font-size: 26px;
       font-weight: 700;
-      color: #0f172a;
-      margin: 0 0 28px;
+      color: $ink;
+      margin: 0 0 10px;
       letter-spacing: -0.5px;
     }
 
     .right-subtitle {
       font-size: 14px;
       color: #94a3b8;
-      margin: 0 0 36px;
+      margin: 0 0 30px;
+      line-height: 1.6;
     }
   }
 }
 
 .login-form {
   :deep(.el-form-item) {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
   }
 
   :deep(.el-input__wrapper) {
     border-radius: 14px;
-    padding: 4px 14px;
-    box-shadow: 0 0 0 1px #e2e8f0 inset;
-    transition: all 0.2s;
+    padding: 7px 14px;
     background: #f8fafc;
+    box-shadow: 0 0 0 1px $line inset;
+    transition: box-shadow 0.2s ease, background 0.2s ease;
 
     &:hover {
-      box-shadow: 0 0 0 1px #60a5fa inset;
       background: #fff;
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.85) inset;
     }
 
     &.is-focus {
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) inset;
       background: #fff;
+      box-shadow: 0 0 0 1px $brand inset, 0 0 0 4px rgba(59, 130, 246, 0.14);
     }
   }
 
@@ -273,22 +370,131 @@ const handleLogin = async () => {
     }
   }
 
+  :deep(.el-form-item.is-error .el-input__wrapper) {
+    box-shadow: 0 0 0 1px var(--el-color-danger) inset;
+  }
+
   .login-btn {
     width: 100%;
     height: 48px;
+    margin-top: 6px;
     border-radius: 14px;
-    font-size: 16px;
-    letter-spacing: 2px;
-    margin-top: 8px;
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
     border: none;
-    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.3);
-    transition: all 0.2s;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, $brand 0%, $brand-light 100%);
+    box-shadow: 0 12px 26px -12px rgba(59, 130, 246, 0.9);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled):not(.is-loading) {
       transform: translateY(-1px);
-      box-shadow: 0 14px 32px rgba(59, 130, 246, 0.4);
+      filter: saturate(1.06);
+      box-shadow: 0 18px 34px -14px rgba(59, 130, 246, 1);
     }
+
+    &:active:not(:disabled):not(.is-loading) {
+      transform: translateY(0);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(59, 130, 246, 0.55);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auraDrift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1.02);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.06);
+  }
+}
+
+// 高度受限时卡片自适应，避免内容被裁切
+@media (max-height: 640px) {
+  .login-card {
+    height: auto;
+  }
+
+  .login-left,
+  .login-right {
+    padding-top: 36px;
+    padding-bottom: 36px;
+  }
+}
+
+// 窄屏：左侧品牌区收缩为顶部标头
+@media (max-width: 900px) {
+  .login-container {
+    padding: 20px;
+  }
+
+  .login-card {
+    flex-direction: column;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+  }
+
+  .login-left {
+    width: 100%;
+    padding: 34px 28px 10px;
+    justify-content: flex-start;
+    border-radius: 26px 26px 0 0;
+
+    .left-content {
+      .left-logo {
+        width: 68px;
+        height: 68px;
+        padding: 11px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.5),
+          0 14px 28px -12px rgba(2, 8, 23, 0.6),
+          0 0 0 8px rgba(59, 130, 246, 0.1);
+      }
+
+      .left-title {
+        font-size: 18px;
+      }
+
+      .left-desc {
+        display: none;
+      }
+    }
+
+    .left-footer {
+      display: none;
+    }
+  }
+
+  .login-right {
+    width: 100%;
+    padding: 30px 28px 40px;
+
+    .right-content {
+      width: 100%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-container::before,
+  .login-card {
+    animation: none;
   }
 }
 </style>

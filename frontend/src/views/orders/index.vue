@@ -3,7 +3,7 @@
     <div class="search-area">
       <el-input
         v-model="searchKeyword"
-        placeholder="订单号 / 客户 / 买家账号 / 物流单号"
+        placeholder="订单号 / 客户 / 买家账号 / 物流单号 / 店铺"
         class="search-input"
         clearable
         @keyup.enter="handleSearch"
@@ -38,13 +38,15 @@
         class="date-picker"
         @change="handleSearch"
       />
+      <el-button type="primary" class="import-btn" @click="importVisible = true">导入</el-button>
     </div>
 
     <div class="table-container">
       <el-table :data="tableData" style="width: 100%" v-loading="loading" @row-click="goDetail">
-        <el-table-column label="平台" width="100" align="center">
+        <el-table-column label="平台" width="130" align="center">
           <template #default="{ row }">
             <el-tag :type="platformTagType(row.platform)" effect="light">{{ PLATFORM_LABELS[row.platform] || row.platform }}</el-tag>
+            <div v-if="row.shop_name" class="shop-name" :title="row.shop_name">{{ row.shop_name }}</div>
           </template>
         </el-table-column>
         <el-table-column prop="order_no" label="订单号" min-width="150" show-overflow-tooltip>
@@ -95,6 +97,8 @@
         />
       </div>
     </div>
+
+    <OrderImportDialog v-model="importVisible" type="cend" @success="handleImportSuccess" />
   </div>
 </template>
 
@@ -102,10 +106,12 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getOrderList, PLATFORM_LABELS, STATUS_LABELS } from '@/api/order'
+import OrderImportDialog from '@/components/OrderImportDialog.vue'
 
 const router = useRouter()
 
 const loading = ref(false)
+const importVisible = ref(false)
 const tableData = ref<any[]>([])
 const total = ref(0)
 const pageSize = ref(10)
@@ -139,6 +145,11 @@ const fetchList = async () => {
 }
 
 const handleSearch = () => {
+  currentPage.value = 1
+  fetchList()
+}
+
+const handleImportSuccess = () => {
   currentPage.value = 1
   fetchList()
 }
@@ -193,6 +204,20 @@ onMounted(fetchList)
 </script>
 
 <style lang="scss" scoped>
+
+.shop-name {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #94a3b8;
+  max-width: 120px;
+  margin-left: auto;
+  margin-right: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .container {
   background: #fff;
   padding: 24px;
@@ -223,6 +248,10 @@ onMounted(fetchList)
 
   .date-picker {
     width: 260px;
+  }
+
+  .import-btn {
+    margin-left: auto;
   }
 
   :deep(.el-input-group) {

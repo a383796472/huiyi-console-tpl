@@ -29,14 +29,12 @@
         </template>
       </el-input>
       <el-select v-model="filterSeries" placeholder="全部系列" clearable class="series-filter" @change="handleSearch">
-        <el-option label="骑行单品" value="骑行单品"></el-option>
-        <el-option label="MS塑胶减震" value="MS塑胶减震"></el-option>
-        <el-option label="MT套装" value="MT套装"></el-option>
-        <el-option label="MW套装" value="MW套装"></el-option>
-        <el-option label="M66手机壳" value="M66手机壳"></el-option>
-        <el-option label="ST06双向充款" value="ST06双向充款"></el-option>
-        <el-option label="CZ车载支架" value="CZ车载支架"></el-option>
+        <el-option v-for="s in seriesOptions" :key="s" :label="s" :value="s"></el-option>
       </el-select>
+      <el-button v-if="canManage" @click="seriesDialogVisible = true">
+        <el-icon style="margin-right: 4px;"><Setting /></el-icon>
+        管理系列
+      </el-button>
     </div>
 
     <div class="table-container">
@@ -62,7 +60,7 @@
         <el-table-column prop="product_code" label="产品编号" fixed="left" width="110">
           <template #default="{ row }">{{ row.product_code || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="series" label="系列" min-width="120">
+        <el-table-column prop="series" label="系列" min-width="130">
           <template #default="{ row }">
             <el-tag :type="getSeriesTagType(row.series)">{{ row.series || '-' }}</el-tag>
           </template>
@@ -84,98 +82,98 @@
         <el-table-column prop="hs_code" label="海关编码" min-width="120">
           <template #default="{ row }">{{ row.hs_code || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="product_name" label="产品名称" min-width="140" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.product_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.product_name || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="english_name" label="英文产品名称" min-width="140" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.english_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.english_name || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="package_english_name" label="产品包装英文名称" min-width="150" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.package_english_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.package_english_name || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="model" label="型号" min-width="100" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.model || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.model || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
+        <el-table-column prop="product_name" label="产品名称" min-width="160">
+          <template #default="{ row }">
+            <el-tooltip :content="row.product_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.product_name || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="english_name" label="英文产品名称" min-width="140">
+          <template #default="{ row }">
+            <el-tooltip :content="row.english_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.english_name || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="package_english_name" label="产品包装英文名称" min-width="150">
+          <template #default="{ row }">
+            <el-tooltip :content="row.package_english_name || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.package_english_name || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="model" label="型号" min-width="100">
+          <template #default="{ row }">
+            <el-tooltip :content="row.model || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.model || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="china_retail_price" label="中国零售价" min-width="110" align="right">
           <template #default="{ row }">{{ row.china_retail_price || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="usd_price" label="美国 (USD)" min-width="110" align="right">
+        <el-table-column prop="usd_price" label="美国（USD）" min-width="110" align="right">
           <template #default="{ row }">{{ row.usd_price || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="eur_price" label="欧洲 (€)" min-width="110" align="right">
+        <el-table-column prop="eur_price" label="欧洲（€）" min-width="110" align="right">
           <template #default="{ row }">{{ row.eur_price || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="compatible_vehicles" label="适配车型" min-width="150" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.compatible_vehicles || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.compatible_vehicles || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="selling_points" label="产品卖点" min-width="150" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.selling_points || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.selling_points || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="specs" label="规格参数" min-width="140" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.specs || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.specs || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="standard_config" label="标准配置(改进后需要修改)" min-width="200" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.standard_config || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.standard_config || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="production_process" label="生产工艺" min-width="110" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.production_process || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.production_process || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
-        <el-table-column prop="material" label="材料" min-width="100" >
-  <template #default="{ row }">
-    <el-tooltip :content="row.material || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
-      <span class="cell-ellipsis">{{ row.material || '-' }}</span>
-    </el-tooltip>
-  </template>
-</el-table-column>
+        <el-table-column prop="compatible_vehicles" label="适配车型" min-width="150">
+          <template #default="{ row }">
+            <el-tooltip :content="row.compatible_vehicles || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.compatible_vehicles || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="selling_points" label="产品卖点" min-width="150">
+          <template #default="{ row }">
+            <el-tooltip :content="row.selling_points || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.selling_points || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="specs" label="规格参数" min-width="140">
+          <template #default="{ row }">
+            <el-tooltip :content="row.specs || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.specs || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="standard_config" label="标准配置（改进后需要修改）" min-width="200">
+          <template #default="{ row }">
+            <el-tooltip :content="row.standard_config || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.standard_config || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="production_process" label="生产工艺" min-width="110">
+          <template #default="{ row }">
+            <el-tooltip :content="row.production_process || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.production_process || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="material" label="材料" min-width="100">
+          <template #default="{ row }">
+            <el-tooltip :content="row.material || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.material || '-' }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="color" label="颜色" min-width="90">
           <template #default="{ row }">{{ row.color || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="net_weight" label="产品净重(KG)" min-width="100" align="right">
+        <el-table-column prop="net_weight" label="产品净重（KG）" min-width="110" align="right">
           <template #default="{ row }">{{ row.net_weight || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="gross_weight" label="毛重(KG)" min-width="100" align="right">
+        <el-table-column prop="gross_weight" label="毛重（KG）（包含产品，包装）" min-width="180" align="right">
           <template #default="{ row }">{{ row.gross_weight || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="whole_box_weight" label="整箱毛重(KG)" min-width="110" align="right">
+        <el-table-column prop="whole_box_weight" label="整箱毛重（KG）" min-width="120" align="right">
           <template #default="{ row }">{{ row.whole_box_weight || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="packaging_size" label="包装规格(MM)" min-width="120">
+        <el-table-column prop="packaging_size" label="包装规格（MM）" min-width="130">
           <template #default="{ row }">{{ row.packaging_size || '-' }}</template>
         </el-table-column>
         <el-table-column label="品牌包装图片" width="80" align="center">
@@ -193,10 +191,10 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="inner_box_size" label="内小箱规格(MM)" min-width="140">
+        <el-table-column prop="inner_box_size" label="内小箱规格（MM）" min-width="150">
           <template #default="{ row }">{{ row.inner_box_size || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="outer_box_size" label="外大箱规格(MM)" min-width="140">
+        <el-table-column prop="outer_box_size" label="外大箱规格（MM）" min-width="150">
           <template #default="{ row }">{{ row.outer_box_size || '-' }}</template>
         </el-table-column>
         <el-table-column prop="inner_box_qty" label="内箱装箱数量" min-width="110">
@@ -211,47 +209,62 @@
         <el-table-column prop="moq" label="MOQ" min-width="80">
           <template #default="{ row }">{{ row.moq || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="inner_box_sku" label="内箱SKU代码(ICS)" min-width="140">
+        <el-table-column prop="inner_box_sku" label="内箱SKU代码（ICS）" min-width="150">
           <template #default="{ row }">{{ row.inner_box_sku || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="outer_box_sku" label="外箱SKU代码(MCS)" min-width="140">
+        <el-table-column prop="outer_box_sku" label="外箱SKU代码(MCS)" min-width="150">
           <template #default="{ row }">{{ row.outer_box_sku || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="inner_barcode" label="内纸箱条形码(ICB)" min-width="150">
+        <el-table-column prop="inner_barcode" label="内纸箱条形码（ICB）" min-width="160">
           <template #default="{ row }">{{ row.inner_barcode || '-' }}</template>
         </el-table-column>
         <el-table-column prop="product_supplying" label="产品供应中" min-width="100">
           <template #default="{ row }">{{ row.product_supplying || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="remark_2" label="备注(2)" min-width="150">
-          <template #default="{ row }">{{ row.remark_2 || '-' }}</template>
+        <el-table-column prop="remark_2" label="备注（2）" min-width="150">
+          <template #default="{ row }">
+            <el-tooltip :content="row.remark_2 || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.remark_2 || '-' }}</span>
+            </el-tooltip>
+          </template>
         </el-table-column>
-        <el-table-column prop="cost_1" label="成本(1)" min-width="80" align="right">
+        <el-table-column prop="cost_1" label="成本（1）" min-width="90" align="right">
           <template #default="{ row }">{{ row.cost_1 || '-' }}</template>
         </el-table-column>
         <el-table-column prop="suggested_price" label="建议销售价" min-width="100" align="right">
           <template #default="{ row }">{{ row.suggested_price || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="competitor_price_sp" label="海外竞对参考价-美(sp)" min-width="150">
+        <el-table-column prop="competitor_price_ql" label="海外竞对参考价-美（quadlock）" min-width="200">
+          <template #default="{ row }">{{ row.competitor_price_ql || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="competitor_price_sp" label="海外竞对参考价-美（sp）" min-width="180">
           <template #default="{ row }">{{ row.competitor_price_sp || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="competitor_price_ql" label="海外竞对参考价-美(quadlock)" min-width="170">
-          <template #default="{ row }">{{ row.competitor_price_ql || '-' }}</template>
+        <el-table-column prop="remark" label="备注" min-width="150">
+          <template #default="{ row }">
+            <el-tooltip :content="row.remark || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.remark || '-' }}</span>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column prop="cost" label="成本" min-width="80" align="right">
           <template #default="{ row }">{{ row.cost || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="suggested_price_1" label="建议销售价(1)" min-width="100" align="right">
+        <el-table-column prop="suggested_price_1" label="建议销售价（1）" min-width="110" align="right">
           <template #default="{ row }">{{ row.suggested_price_1 || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="competitor_price_sp_num" label="海外竞对参考价-美:SP" min-width="160" align="right">
-          <template #default="{ row }">{{ row.competitor_price_sp_num || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="competitor_price_ql_num" label="海外竞对参考价-美:ql" min-width="150">
+        <el-table-column prop="competitor_price_ql_num" label="海外竞对参考价-美：ql" min-width="160" align="right">
           <template #default="{ row }">{{ row.competitor_price_ql_num || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="remark_1" label="备注(1)" min-width="150">
-          <template #default="{ row }">{{ row.remark_1 || '-' }}</template>
+        <el-table-column prop="competitor_price_sp_num" label="海外竞对参考价-美：SP" min-width="160" align="right">
+          <template #default="{ row }">{{ row.competitor_price_sp_num || '-' }}</template>
+        </el-table-column>
+        <el-table-column prop="remark_1" label="备注（1）" min-width="150">
+          <template #default="{ row }">
+            <el-tooltip :content="row.remark_1 || ''" placement="top" effect="dark" popper-class="wrap-tooltip">
+              <span class="cell-ellipsis">{{ row.remark_1 || '-' }}</span>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="150" align="center">
           <template #default="{ row }">
@@ -273,6 +286,28 @@
         />
       </div>
     </div>
+
+    <el-dialog v-model="seriesDialogVisible" title="产品系列管理" width="480px" @closed="newSeriesName = ''">
+      <div class="series-add">
+        <el-input
+          v-model="newSeriesName"
+          placeholder="输入新系列名称，如 MM系列"
+          maxlength="50"
+          @keyup.enter="handleAddSeries"
+        />
+        <el-button type="primary" :loading="seriesAdding" @click="handleAddSeries">添加</el-button>
+      </div>
+      <div class="series-list" v-loading="seriesLoading">
+        <div v-for="s in seriesList" :key="s.id" class="series-row">
+          <div class="series-info">
+            <el-tag :type="getSeriesTagType(s.name)">{{ s.name }}</el-tag>
+            <span class="series-count">{{ s.productCount }} 个产品</span>
+          </div>
+          <el-button link type="danger" @click="handleDeleteSeries(s)">删除</el-button>
+        </div>
+        <el-empty v-if="!seriesLoading && !seriesList.length" description="暂无系列" :image-size="60" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -280,8 +315,14 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import { Plus, Download } from '@element-plus/icons-vue'
+import { Plus, Download, Setting } from '@element-plus/icons-vue'
 import request, { baseURL, downloadFile } from '@/utils/request'
+import {
+  getProductSeries,
+  addProductSeries,
+  deleteProductSeries,
+  type ProductSeries
+} from '@/api/productSeries'
 
 const router = useRouter()
 const loading = ref(false)
@@ -305,6 +346,76 @@ try {
 } catch {}
 const imgLoadedMap = reactive<Record<number, boolean>>({})
 
+const seriesOptions = ref<string[]>([])
+const seriesList = ref<ProductSeries[]>([])
+const seriesDialogVisible = ref(false)
+const seriesLoading = ref(false)
+const seriesAdding = ref(false)
+const newSeriesName = ref('')
+
+const fetchSeries = async () => {
+  seriesLoading.value = true
+  try {
+    const res = await getProductSeries()
+    if (res.data.code === 200) {
+      seriesList.value = res.data.data || []
+      seriesOptions.value = seriesList.value.map((s) => s.name)
+      if (filterSeries.value && !seriesOptions.value.includes(filterSeries.value)) {
+        filterSeries.value = ''
+      }
+    }
+  } catch (error) {
+    console.error('获取产品系列失败', error)
+  } finally {
+    seriesLoading.value = false
+  }
+}
+
+const handleAddSeries = async () => {
+  const name = newSeriesName.value.trim()
+  if (!name) {
+    ElMessage.warning('请输入系列名称')
+    return
+  }
+  seriesAdding.value = true
+  try {
+    const res = await addProductSeries(name)
+    if (res.data.code === 200) {
+      ElMessage.success('添加成功')
+      newSeriesName.value = ''
+      await fetchSeries()
+    } else {
+      ElMessage.error(res.data.message || '添加失败')
+    }
+  } catch (error: any) {
+    ElMessage.error(error?.response?.data?.message || '添加失败')
+  } finally {
+    seriesAdding.value = false
+  }
+}
+
+const handleDeleteSeries = (series: ProductSeries) => {
+  ElMessageBox.confirm(
+    `确定删除系列「${series.name}」吗？`,
+    '提示',
+    { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+  ).then(async () => {
+    try {
+      const res = await deleteProductSeries(series.id)
+      if (res.data.code === 200) {
+        ElMessage.success('删除成功')
+        await fetchSeries()
+        if (filterSeries.value === series.name) {
+          filterSeries.value = ''
+          handleSearch()
+        }
+      }
+    } catch (error: any) {
+      ElMessage.error(error?.response?.data?.message || '删除失败')
+    }
+  }).catch(() => {})
+}
+
 const onImgError = (e: Event) => {
   const img = e.target as HTMLImageElement
   const rowId = img.closest('tr')?.rowIndex
@@ -327,10 +438,25 @@ const isFeishuFileToken = (path: string) => {
   return path && !path.startsWith('http') && !path.startsWith('/') && /^[a-zA-Z0-9]+$/.test(path)
 }
 
+const parseFirstImage = (value: any): string | null => {
+  if (!value) return null
+  let list: string[] = []
+  if (Array.isArray(value)) {
+    list = value.filter(Boolean)
+  } else if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value)
+      if (Array.isArray(parsed)) list = parsed.filter(Boolean)
+    } catch {
+      list = [value]
+    }
+  }
+  const first = list.find((item) => typeof item === 'string' && item && !isFeishuFileToken(item))
+  return first || null
+}
+
 const getProductImage = (row: any) => {
-  const path = row.product_image || row.image || null
-  if (path && isFeishuFileToken(path)) return null
-  return path
+  return parseFirstImage(row.product_image || row.image)
 }
 
 const getImgSrc = (row: any) => {
@@ -341,9 +467,7 @@ const getImgSrc = (row: any) => {
 }
 
 const getBrandPackageImage = (row: any) => {
-  const path = row.brand_package_image || null
-  if (path && isFeishuFileToken(path)) return null
-  return path
+  return parseFirstImage(row.brand_package_image)
 }
 
 const getBrandPackageImgSrc = (row: any) => {
@@ -364,17 +488,23 @@ const getStatusType = (status: string) => {
   return map[status] || 'info'
 }
 
+const SERIES_TAG_TYPES = ['', 'warning', 'success', 'info', 'danger']
+
 const getSeriesTagType = (series: string) => {
   const map: Record<string, string> = {
-    '骑行单品': '',
-    'MS塑胶减震': 'warning',
-    'MT套装': 'success',
-    'MW套装': 'warning',
-    'M66手机壳': 'danger',
-    'ST06双向充款': 'info',
-    'CZ车载支架': 'success'
+    '单品系列': '',
+    'MS系列': 'warning',
+    'MT系列': 'success',
+    'MW系列': 'warning',
+    'M66系列': 'danger',
+    'ST06双向充系列': 'info',
+    'CZ车载支架系列': 'success',
+    'GT运动相机系列': 'info'
   }
-  return map[series] || '-'
+  if (map[series] !== undefined) return map[series]
+  // 新增系列按顺序循环取色
+  const idx = seriesOptions.value.indexOf(series)
+  return SERIES_TAG_TYPES[(idx >= 0 ? idx : 0) % SERIES_TAG_TYPES.length]
 }
 
 const handleView = (id: number) => {
@@ -461,6 +591,7 @@ const handleDelete = (id: number) => {
 }
 
 onMounted(() => {
+  fetchSeries()
   fetchProducts()
 })
 </script>
@@ -496,7 +627,43 @@ onMounted(() => {
   .series-filter {
     width: 160px;
   }
+}
 
+.series-add {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.series-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.series-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 4px;
+  border-bottom: 1px dashed #e2e8f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.series-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.series-count {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.search-area {
   :deep(.el-button--primary) {
     border-radius: 8px;
     height: 34px;

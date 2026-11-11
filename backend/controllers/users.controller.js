@@ -1,13 +1,18 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = require('../middleware/auth');
+const { JWT_SECRET, isGlobalAdmin, isDeptAdmin } = require('../middleware/auth');
 
 const SALT_ROUNDS = 10;
 
 function generateToken(user) {
   return jwt.sign(
-    { id: user.id, username: user.username, role: user.role },
+    {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      department_id: user.department_id ?? null
+    },
     JWT_SECRET,
     { expiresIn: '24h' }
   );
@@ -22,7 +27,13 @@ exports.login = async (req, res) => {
     }
 
     // 支持用户名或邮箱登录（email 未设唯一约束，可能存在多条匹配）
-    const [rows] = await db.query('SELECT * FROM users WHERE username = ? OR email = ?', [username, username]);
+    const [rows] = await db.query(
+      `SELECT u.*, d.name AS department_name
+       FROM users u
+       LEFT JOIN departments d ON u.department_id = d.id
+       WHERE u.username = ? OR u.email = ?`,
+      [username, username]
+    );
     if (rows.length === 0) {
       return res.status(401).json({ code: 401, message: '用户名/邮箱或密码错误' });
     }
@@ -55,7 +66,10 @@ exports.login = async (req, res) => {
           id: user.id,
           username: user.username,
           email: user.email,
-          role: user.role
+          real_name: user.real_name,
+          role: user.role,
+          department_id: user.department_id,
+          department_name: user.department_name || null
         }
       }
     });
@@ -83,6 +97,11 @@ exports.getCurrentUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
+    // 普通员工无用户管理权限
+    if (!isGlobalAdmin(req.user) && !isDeptAdmin(req.user)) {
+      return res.status(403).json({ code: 403, message: '权限不足' });
+    }
+
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const pageSize = Math.max(parseInt(req.query.pageSize) || 10, 1);
     const offset = (page - 1) * pageSize;
@@ -93,30 +112,63 @@ exports.getUsers = async (req, res) => {
     const conditions = [];
     const params = [];
 
+    // 部门管理员只能看到本部门用户
+    if (isDeptAdmin(req.user)) {
+      if (!req.user.department_id) {
+        return res.status(200).json({
+          code: 200,
+          message: '获取用户列表成功',
+          data: { list: [], total: 0, page, pageSize }
+        });
+      }
+      conditions.push('u.department_id = ?');
+      params.push(req.user.department_id);
+    }
+
+    // 部门筛选：支持包含下级部门
+    const departmentId = req.query.departmentId ? Number(req.query.departmentId) : null;
+    if (departmentId) {
+      const ids = [departmentId];
+      if (req.query.withChildren === '1') {
+        const [allDepts] = await db.query('SELECT id, parent_id FROM departments');
+        const collect = (parentId) => {
+          for (const dept of allDepts) {
+            if (dept.parent_id === parentId) {
+              ids.push(dept.id);
+              collect(dept.id);
+            }
+          }
+        };
+        collect(departmentId);
+      }
+      conditions.push(`u.department_id IN (${ids.map(() => '?').join(', ')})`);
+      params.push(...ids);
+    }
+
     if (keyword) {
       if (searchType === 'username') {
-        conditions.push('username LIKE ?');
+        conditions.push('u.username LIKE ?');
         params.push(`%${keyword}%`);
       } else if (searchType === 'email') {
-        conditions.push('email LIKE ?');
+        conditions.push('u.email LIKE ?');
         params.push(`%${keyword}%`);
       } else if (searchType === 'phone') {
-        conditions.push('phone LIKE ?');
+        conditions.push('u.phone LIKE ?');
         params.push(`%${keyword}%`);
       } else {
-        conditions.push('(username LIKE ? OR email LIKE ? OR phone LIKE ?)');
+        conditions.push('(u.username LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)');
         params.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
       }
     }
     if (status) {
-      conditions.push('status = ?');
+      conditions.push('u.status = ?');
       params.push(status);
     }
 
     const whereSql = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
     const [[{ total }]] = await db.query(
-      `SELECT COUNT(*) AS total FROM users ${whereSql}`,
+      `SELECT COUNT(*) AS total FROM users u ${whereSql}`,
       params
     );
     const [rows] = await db.query(
@@ -146,13 +198,24 @@ exports.getUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
   try {
+    if (!isGlobalAdmin(req.user) && !isDeptAdmin(req.user)) {
+      return res.status(403).json({ code: 403, message: '权限不足' });
+    }
+
     const { id } = req.params;
     const [rows] = await db.query(
-      'SELECT u.id, u.username, u.email, u.phone, u.real_name, u.department_id, u.role, u.status, u.last_login, u.created_at, u.updated_at FROM users u WHERE u.id = ?',
+      `SELECT u.id, u.username, u.email, u.phone, u.real_name, u.department_id,
+              d.name AS department_name, u.role, u.status, u.last_login, u.created_at, u.updated_at
+       FROM users u
+       LEFT JOIN departments d ON u.department_id = d.id
+       WHERE u.id = ?`,
       [id]
     );
     if (rows.length === 0) {
       return res.status(404).json({ code: 404, message: '用户不存在' });
+    }
+    if (isDeptAdmin(req.user) && rows[0].department_id !== req.user.department_id) {
+      return res.status(403).json({ code: 403, message: '只能查看本部门用户' });
     }
     res.status(200).json({ code: 200, message: '获取用户成功', data: rows[0] });
   } catch (error) {
@@ -163,13 +226,31 @@ exports.getUserById = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   try {
+    if (!isGlobalAdmin(req.user) && !isDeptAdmin(req.user)) {
+      return res.status(403).json({ code: 403, message: '权限不足' });
+    }
+
     const { username, password, email, phone, real_name, department_id, role } = req.body;
 
     if (!username || !password) {
       return res.status(400).json({ code: 400, message: '用户名和密码为必填项' });
     }
 
-    if (!department_id) {
+    // 部门管理员强制归属本部门、且只能创建普通员工
+    let targetDeptId = department_id;
+    const userRole = role || 'user';
+
+    if (isDeptAdmin(req.user)) {
+      if (!req.user.department_id) {
+        return res.status(400).json({ code: 400, message: '当前账号未分配部门，无法创建用户' });
+      }
+      if (userRole !== 'user') {
+        return res.status(403).json({ code: 403, message: '部门管理员只能创建普通员工账号' });
+      }
+      targetDeptId = req.user.department_id;
+    }
+
+    if (!targetDeptId) {
       return res.status(400).json({ code: 400, message: '部门为必选项' });
     }
 
@@ -177,8 +258,6 @@ exports.createUser = async (req, res) => {
     if (existing.length > 0) {
       return res.status(409).json({ code: 409, message: '用户名已存在' });
     }
-
-    const userRole = role || 'user';
 
     // 只有超级管理员才能创建超级管理员
     if (userRole === 'super_admin' && req.user.role !== 'super_admin') {
@@ -195,13 +274,13 @@ exports.createUser = async (req, res) => {
 
     const [result] = await db.query(
       'INSERT INTO users (username, password, email, phone, real_name, department_id, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
-      [username, hashedPassword, email || null, phone || null, real_name || null, department_id || null, userRole]
+      [username, hashedPassword, email || null, phone || null, real_name || null, targetDeptId, userRole]
     );
 
     res.status(201).json({
       code: 200,
       message: '用户创建成功',
-      data: { id: result.insertId, username, email: email || null, phone: phone || null, real_name: real_name || null, department_id: department_id || null, role: userRole }
+      data: { id: result.insertId, username, email: email || null, phone: phone || null, real_name: real_name || null, department_id: targetDeptId, role: userRole }
     });
   } catch (error) {
     console.error('创建用户失败：', error);
@@ -275,12 +354,34 @@ exports.updateProfile = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
+    if (!isGlobalAdmin(req.user) && !isDeptAdmin(req.user)) {
+      return res.status(403).json({ code: 403, message: '权限不足' });
+    }
+
     const { id } = req.params;
     const { username, password, email, phone, real_name, department_id, role, status } = req.body;
 
     const [existing] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
     if (existing.length === 0) {
       return res.status(404).json({ code: 404, message: '用户不存在' });
+    }
+
+    const targetUser = existing[0];
+
+    // 部门管理员只能管理本部门的普通员工，且不能调整部门与角色
+    if (isDeptAdmin(req.user)) {
+      if (!req.user.department_id || targetUser.department_id !== req.user.department_id) {
+        return res.status(403).json({ code: 403, message: '只能管理本部门用户' });
+      }
+      if (targetUser.role !== 'user') {
+        return res.status(403).json({ code: 403, message: '只能管理本部门的普通员工' });
+      }
+      if (department_id !== undefined && department_id !== req.user.department_id) {
+        return res.status(403).json({ code: 403, message: '不能将用户调整到其他部门' });
+      }
+      if (role !== undefined && role !== 'user') {
+        return res.status(403).json({ code: 403, message: '无权修改用户角色' });
+      }
     }
 
     const updateFields = [];
@@ -359,6 +460,10 @@ exports.updateUser = async (req, res) => {
 
 exports.toggleUserStatus = async (req, res) => {
   try {
+    if (!isGlobalAdmin(req.user) && !isDeptAdmin(req.user)) {
+      return res.status(403).json({ code: 403, message: '权限不足' });
+    }
+
     const { id } = req.params;
     const { status } = req.body;
 
@@ -366,12 +471,22 @@ exports.toggleUserStatus = async (req, res) => {
       return res.status(400).json({ code: 400, message: '状态值无效，必须为 0 或 1' });
     }
 
-    const [existing] = await db.query('SELECT id, role, status FROM users WHERE id = ?', [id]);
+    const [existing] = await db.query('SELECT id, role, status, department_id FROM users WHERE id = ?', [id]);
     if (existing.length === 0) {
       return res.status(404).json({ code: 404, message: '用户不存在' });
     }
 
     const targetUser = existing[0];
+
+    // 部门管理员只能启停本部门普通员工
+    if (isDeptAdmin(req.user)) {
+      if (!req.user.department_id || targetUser.department_id !== req.user.department_id) {
+        return res.status(403).json({ code: 403, message: '只能管理本部门用户' });
+      }
+      if (targetUser.role !== 'user') {
+        return res.status(403).json({ code: 403, message: '只能管理本部门的普通员工' });
+      }
+    }
 
     if (targetUser.role === 'super_admin') {
       return res.status(403).json({ code: 403, message: '不能停用/启用超级管理员' });

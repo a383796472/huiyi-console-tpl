@@ -124,7 +124,7 @@
           <div class="item-value" :title="productData.specs || '-'"><span>{{ productData.specs || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">标准配置</div>
+          <div class="item-label">标准配置（改进后需要修改）</div>
           <div class="item-value" :title="productData.standard_config || '-'"><span>{{ productData.standard_config || '-' }}</span></div>
         </div>
         <div class="info-item">
@@ -132,19 +132,19 @@
           <div class="item-value" :title="productData.package_english_name || '-'"><span>{{ productData.package_english_name || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">产品净重KG</div>
+          <div class="item-label">产品净重（KG）</div>
           <div class="item-value" :title="productData.net_weight || '-'"><span>{{ productData.net_weight || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">毛重KG</div>
+          <div class="item-label">毛重（KG）（包含产品，包装）</div>
           <div class="item-value" :title="productData.gross_weight || '-'"><span>{{ productData.gross_weight || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">整箱毛重KG</div>
+          <div class="item-label">整箱毛重（KG）</div>
           <div class="item-value" :title="productData.whole_box_weight || '-'"><span>{{ productData.whole_box_weight || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">包装规格MM</div>
+          <div class="item-label">包装规格（MM）</div>
           <div class="item-value" :title="productData.packaging_size || '-'"><span>{{ productData.packaging_size || '-' }}</span></div>
         </div>
       </div>
@@ -155,11 +155,11 @@
 
       <div class="product-info">
         <div class="info-item">
-          <div class="item-label">内小箱规格MM</div>
+          <div class="item-label">内小箱规格（MM）</div>
           <div class="item-value" :title="productData.inner_box_size || '-'"><span>{{ productData.inner_box_size || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">外大箱规格MM</div>
+          <div class="item-label">外大箱规格（MM）</div>
           <div class="item-value" :title="productData.outer_box_size || '-'"><span>{{ productData.outer_box_size || '-' }}</span></div>
         </div>
         <div class="info-item">
@@ -175,15 +175,19 @@
           <div class="item-value" :title="productData.packing_qty || '-'"><span>{{ productData.packing_qty || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">内箱SKU代码ICS</div>
+          <div class="item-label">MOQ</div>
+          <div class="item-value" :title="productData.moq || '-'"><span>{{ productData.moq || '-' }}</span></div>
+        </div>
+        <div class="info-item">
+          <div class="item-label">内箱SKU代码（ICS）</div>
           <div class="item-value" :title="productData.inner_box_sku || '-'"><span>{{ productData.inner_box_sku || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">外箱SKU代码MCS</div>
+          <div class="item-label">外箱SKU代码(MCS)</div>
           <div class="item-value" :title="productData.outer_box_sku || '-'"><span>{{ productData.outer_box_sku || '-' }}</span></div>
         </div>
         <div class="info-item">
-          <div class="item-label">内纸箱条形码ICB</div>
+          <div class="item-label">内纸箱条形码（ICB）</div>
           <div class="item-value" :title="productData.inner_barcode || '-'"><span>{{ productData.inner_barcode || '-' }}</span></div>
         </div>
       </div>

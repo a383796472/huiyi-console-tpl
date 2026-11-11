@@ -10,6 +10,9 @@ interface GetUsersParams {
   pageSize?: number
   searchType?: string
   keyword?: string
+  status?: string
+  departmentId?: number | string
+  withChildren?: string
 }
 
 interface CreateUserParams {
@@ -136,5 +139,37 @@ export const getDepartments = () => {
   return request({
     url: '/api/departments',
     method: 'GET'
+  })
+}
+
+export interface DepartmentPayload {
+  name: string
+  parent_id?: number | null
+  sort_order?: number
+  manager_id?: number | null
+  description?: string | null
+  status?: number
+}
+
+export const createDepartment = (data: DepartmentPayload) => {
+  return request({
+    url: '/api/departments',
+    method: 'POST',
+    data
+  })
+}
+
+export const updateDepartment = (id: number | string, data: DepartmentPayload) => {
+  return request({
+    url: `/api/departments/${id}`,
+    method: 'PUT',
+    data
+  })
+}
+
+export const deleteDepartment = (id: number | string) => {
+  return request({
+    url: `/api/departments/${id}`,
+    method: 'DELETE'
   })
 }

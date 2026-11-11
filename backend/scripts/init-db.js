@@ -168,7 +168,7 @@ async function initDB() {
         eur_price DECIMAL(10,2) DEFAULT NULL COMMENT '欧洲欧元',
         moq VARCHAR(50) DEFAULT NULL COMMENT 'MOQ',
         product_supplying VARCHAR(100) DEFAULT NULL COMMENT '产品供应中',
-        net_weight DECIMAL(10,4) DEFAULT NULL COMMENT '产品净重KG',
+        net_weight DECIMAL(10,5) DEFAULT NULL COMMENT '产品净重KG',
         gross_weight DECIMAL(10,4) DEFAULT NULL COMMENT '毛重KG',
         whole_box_weight DECIMAL(10,2) DEFAULT NULL COMMENT '整箱毛重KG',
         packaging_size VARCHAR(100) DEFAULT NULL COMMENT '包装规格MM',

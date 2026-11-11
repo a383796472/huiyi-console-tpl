@@ -1,0 +1,80 @@
+-- ============================================================
+-- B 端销售订单（金蝶销售订单月报）数据库迁移
+-- 日期: 2026-11-10
+-- 数据库: console-backend / huiyi_test
+-- 数据源: 10月B端月报销售订单数据.xlsx（订单头 + 物料明细行）
+-- 说明: C 端订单仍使用 orders 表；B 端单独使用 b2b_orders / b2b_order_items
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `b2b_orders` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `order_no` VARCHAR(64) NOT NULL COMMENT '单据编号（HYSO...）',
+  `biz_date` DATE DEFAULT NULL COMMENT '业务日期',
+  `doc_type` VARCHAR(32) DEFAULT NULL COMMENT '单据类型（标准/非标/样板/外采/模具/GR订单）',
+  `supplier` VARCHAR(64) DEFAULT NULL COMMENT '供应商',
+  `status` VARCHAR(32) DEFAULT NULL COMMENT '单据状态',
+  `department` VARCHAR(64) DEFAULT NULL COMMENT '部门',
+  `sales_person` VARCHAR(64) DEFAULT NULL COMMENT '销售业务员',
+  `clerk` VARCHAR(64) DEFAULT NULL COMMENT '业务员',
+  `purchase_order_no` VARCHAR(64) DEFAULT NULL COMMENT '采购订单号',
+  `customer_type` VARCHAR(16) DEFAULT NULL COMMENT '新老客户',
+  `created_time` DATETIME DEFAULT NULL COMMENT '单据创建时间',
+  `customer` VARCHAR(255) DEFAULT NULL COMMENT '客户',
+  `delivery_method` VARCHAR(32) DEFAULT NULL COMMENT '交货方式',
+  `address` VARCHAR(1000) DEFAULT NULL COMMENT '收货地址信息',
+  `country` VARCHAR(64) DEFAULT NULL COMMENT '客户国家',
+  `province` VARCHAR(64) DEFAULT NULL COMMENT '客户省份/地区',
+  `city` VARCHAR(64) DEFAULT NULL COMMENT '客户城市',
+  `customer_source` VARCHAR(64) DEFAULT NULL COMMENT '客户来源',
+  `ship_status` VARCHAR(64) DEFAULT NULL COMMENT '发货情况',
+  `customer_email` VARCHAR(255) DEFAULT NULL COMMENT '客户邮箱',
+  `line_count` INT NOT NULL DEFAULT 0 COMMENT '明细行数',
+  `item_count` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '销售数量合计',
+  `total_amount` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '价税合计',
+  `untaxed_amount` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '未税金额合计',
+  `purchase_amount` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '采购总金额合计',
+  `refund_amount` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '退货金额合计',
+  `gross_profit` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '毛利合计',
+  `currency` VARCHAR(8) DEFAULT 'CNY' COMMENT '币种',
+  `remark` VARCHAR(1000) DEFAULT NULL COMMENT '订单备注',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_b2b_order_no` (`order_no`),
+  KEY `idx_b2b_biz_date` (`biz_date`),
+  KEY `idx_b2b_dept` (`department`),
+  KEY `idx_b2b_customer` (`customer`),
+  KEY `idx_b2b_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='B端销售订单主表';
+
+CREATE TABLE IF NOT EXISTS `b2b_order_items` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `order_id` INT NOT NULL COMMENT 'b2b_orders.id',
+  `order_no` VARCHAR(64) NOT NULL COMMENT '单据编号',
+  `line_no` VARCHAR(16) NOT NULL COMMENT '单据行号',
+  `material_no` VARCHAR(64) DEFAULT NULL COMMENT '物料编号',
+  `material_name` VARCHAR(255) DEFAULT NULL COMMENT '物料名称',
+  `spec` VARCHAR(512) DEFAULT NULL COMMENT '规格型号',
+  `unit_price` DECIMAL(14,4) DEFAULT NULL COMMENT '销售单价',
+  `quantity` DECIMAL(14,2) NOT NULL DEFAULT 0 COMMENT '销售数量',
+  `pre_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '预收金额',
+  `local_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '金额(本位币)',
+  `untaxed_total` DECIMAL(14,2) DEFAULT 0 COMMENT '未税总金额(交易币种)',
+  `untaxed_line_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '销售订单行.未税金额(交易币种)',
+  `sales_fx_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '销售总额(核算币种)',
+  `sales_local_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '销售总额(本币)',
+  `tax_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '价税合计',
+  `purchase_price` DECIMAL(14,4) DEFAULT NULL COMMENT '采购单价',
+  `purchase_total` DECIMAL(14,2) DEFAULT 0 COMMENT '采购总金额',
+  `purchase_order_total` DECIMAL(14,2) DEFAULT 0 COMMENT '采购单总额',
+  `return_amount` DECIMAL(14,2) DEFAULT 0 COMMENT '退货金额',
+  `gross_profit` DECIMAL(14,2) DEFAULT 0 COMMENT '单品毛利润',
+  `gross_profit_rate` DECIMAL(10,4) DEFAULT NULL COMMENT '单品毛利润率',
+  `remark` VARCHAR(1000) DEFAULT NULL COMMENT '备注',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_b2b_order_line` (`order_no`, `line_no`),
+  KEY `idx_b2b_item_order` (`order_id`),
+  KEY `idx_b2b_item_material` (`material_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='B端销售订单明细行';

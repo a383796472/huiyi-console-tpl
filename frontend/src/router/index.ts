@@ -43,16 +43,10 @@ const routes = [
         meta: { title: '产品详情', requiresAuth: true }
       },
       {
-        path: 'users',
-        name: 'Users',
-        component: () => import('../views/users/index.vue'),
-        meta: { title: '用户管理', requiresAuth: true }
-      },
-      {
-        path: 'users/create',
-        name: 'CreateUser',
-        component: () => import('../views/users/create.vue'),
-        meta: { title: '添加用户', requiresAuth: true }
+        path: 'departments',
+        name: 'Departments',
+        component: () => import('../views/departments/index.vue'),
+        meta: { title: '部门管理', requiresAuth: true }
       },
       {
         path: 'profile',
@@ -70,13 +64,31 @@ const routes = [
         path: 'orders',
         name: 'Orders',
         component: () => import('../views/orders/index.vue'),
-        meta: { title: '订单管理', requiresAuth: true }
+        meta: { title: 'C端订单', requiresAuth: true }
       },
       {
         path: 'orders/:id',
         name: 'OrderDetail',
         component: () => import('../views/orders/detail.vue'),
         meta: { title: '订单详情', requiresAuth: true }
+      },
+      {
+        path: 'b2b-orders',
+        name: 'B2bOrders',
+        component: () => import('../views/b2bOrders/index.vue'),
+        meta: { title: 'B端订单', requiresAuth: true }
+      },
+      {
+        path: 'b2b-orders/:id',
+        name: 'B2bOrderDetail',
+        component: () => import('../views/b2bOrders/detail.vue'),
+        meta: { title: 'B端订单详情', requiresAuth: true }
+      },
+      {
+        path: 'shop-stats',
+        name: 'ShopStats',
+        component: () => import('../views/shopStats/index.vue'),
+        meta: { title: '店铺数据', requiresAuth: true }
       },
       {
         path: 'logistics',
@@ -104,9 +116,13 @@ const router = createRouter({
   routes
 })
 
+// 站点名称：广州集客电子业务管理平台
+const SITE_NAME = '广州集客电子业务管理平台'
+
 // 全局守卫
 router.beforeEach((to, _from, next) => {
-  document.title = (to.meta?.title as string) || '后台管理系统'
+  const pageTitle = to.meta?.title as string
+  document.title = pageTitle ? `${pageTitle} - ${SITE_NAME}` : SITE_NAME
 
   const token = localStorage.getItem('token')
   const isAuthenticated = !!token
@@ -117,16 +133,19 @@ router.beforeEach((to, _from, next) => {
     return
   }
 
-  // 用户管理模块仅超级管理员可访问
-  if (to.path.startsWith('/users')) {
-    try {
-      const raw = localStorage.getItem('userInfo')
-      const userInfo = raw ? JSON.parse(raw) : null
-      if (!userInfo || userInfo.role !== 'super_admin') {
-        next('/homeView')
-        return
-      }
-    } catch {
+  // 读取当前登录用户角色，用于模块访问控制
+  let currentUser: { role?: string } | null = null
+  try {
+    const raw = localStorage.getItem('userInfo')
+    currentUser = raw ? JSON.parse(raw) : null
+  } catch {
+    currentUser = null
+  }
+  const currentRole = currentUser?.role
+
+  // 部门管理：超级管理员 + 部门管理员（部门管理员仅能看本部门及其下级）
+  if (to.path.startsWith('/departments')) {
+    if (!currentUser || !['super_admin', 'dept_admin'].includes(currentRole || '')) {
       next('/homeView')
       return
     }

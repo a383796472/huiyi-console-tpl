@@ -24,9 +24,9 @@ exports.getOrders = async (req, res) => {
     const params = [];
 
     if (keyword) {
-      conditions.push('(order_no LIKE ? OR online_order_no LIKE ? OR buyer_name LIKE ? OR buyer_account LIKE ? OR logistics_no LIKE ?)');
+      conditions.push('(order_no LIKE ? OR online_order_no LIKE ? OR buyer_name LIKE ? OR buyer_account LIKE ? OR logistics_no LIKE ? OR shop_name LIKE ?)');
       const kw = `%${keyword}%`;
-      params.push(kw, kw, kw, kw, kw);
+      params.push(kw, kw, kw, kw, kw, kw);
     }
     if (platform) {
       conditions.push('platform = ?');

@@ -3,23 +3,22 @@
     <div class="sidebar">
       <div class="sidebar-header">
         <div class="header-logo">
-          <img src="../assets/huiyi-logo.webp" alt="徽一 logo" />
+          <img src="../assets/huiyi-logo.webp" alt="广州集客电子科技有限公司 logo" />
         </div>
       </div>
-      <el-menu
-        :default-active="$route.path"
-        router
-        background-color="#304156"
-        text-color="#fff"
-        active-text-color="#60a5fa"
-      >
+      <el-menu :default-active="$route.path" router>
         <el-menu-item index="/homeView">首页</el-menu-item>
         <el-menu-item index="/products">产品管理</el-menu-item>
         <el-menu-item index="/tasks">任务管理</el-menu-item>
-        <el-menu-item index="/orders">订单管理</el-menu-item>
+        <el-sub-menu index="orders">
+          <template #title>订单管理</template>
+          <el-menu-item index="/orders">C端订单</el-menu-item>
+          <el-menu-item index="/b2b-orders">B端订单</el-menu-item>
+        </el-sub-menu>
+        <el-menu-item index="/shop-stats">店铺数据</el-menu-item>
         <el-menu-item index="/logistics">物流管理</el-menu-item>
         <!-- <el-menu-item index="/inventory">库存管理</el-menu-item> -->
-        <el-menu-item v-if="userInfo.role === 'super_admin'" index="/users">用户管理</el-menu-item>
+        <el-menu-item v-if="canManageOrg" index="/departments">部门管理</el-menu-item>
       </el-menu>
     </div>
 
@@ -68,16 +67,31 @@ const route = useRoute()
 const userInfo = ref({
   username: '',
   email: '',
-  role: ''
+  role: '',
+  department_name: ''
 })
+
+const canManageOrg = computed(() =>
+  ['super_admin', 'dept_admin'].includes(userInfo.value.role)
+)
 
 const parentMenuMap: Record<string, { name: string; path: string }> = {
   '/creatProduct': { name: '产品管理', path: '/products' },
   '/viewProduct': { name: '产品管理', path: '/products' },
   '/products': { name: '产品管理', path: '/products' },
-  '/users/create': { name: '用户管理', path: '/users' },
-  '/users': { name: '用户管理', path: '/users' }
+  '/orders': { name: '订单管理', path: '/orders' },
+  '/b2b-orders': { name: '订单管理', path: '/orders' },
+  '/departments': { name: '部门管理', path: '/departments' }
 }
+
+// 动态路由（如 /orders/:id）无法用路径精确匹配，按正则归属到对应列表页
+const dynamicParentRules: Array<{ test: RegExp; name: string; path: string }> = [
+  { test: /^\/orders\/[^/]+$/, name: '订单管理', path: '/orders' },
+  { test: /^\/b2b-orders\/[^/]+$/, name: 'B端订单', path: '/b2b-orders' }
+]
+
+const resolveParentMenu = (path: string) =>
+  parentMenuMap[path] || dynamicParentRules.find((rule) => rule.test.test(path))
 
 interface BreadcrumbItem {
   label: string
@@ -86,10 +100,7 @@ interface BreadcrumbItem {
 
 const getPageTitle = () => {
   const title = (route.meta?.title as string) || ''
-  if (route.query.id) {
-    if (route.path === '/creatProduct') return '编辑产品'
-    if (route.path === '/users/create') return '编辑用户'
-  }
+  if (route.query.id && route.path === '/creatProduct') return '编辑产品'
   return title
 }
 
@@ -97,7 +108,7 @@ const breadcrumbList = computed<BreadcrumbItem[]>(() => {
   const title = getPageTitle()
   const list: BreadcrumbItem[] = []
 
-  const parent = parentMenuMap[route.path]
+  const parent = resolveParentMenu(route.path)
   if (parent) {
     if (title && title !== parent.name) {
       list.push({ label: parent.name, path: parent.path })
@@ -118,7 +129,7 @@ onMounted(() => {
     try {
       userInfo.value = JSON.parse(stored)
     } catch {
-      userInfo.value = { username: '', email: '', role: '' }
+      userInfo.value = { username: '', email: '', role: '', department_name: '' }
     }
   }
 })
@@ -156,31 +167,45 @@ const handleDropdownCommand = (command: string) => {
 }
 
 .sidebar {
+  position: relative;
   width: 232px;
   height: 100%;
-  background: linear-gradient(180deg, #1f2a44 0%, #182033 100%);
   color: white;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   padding: 16px 14px;
   box-sizing: border-box;
-  box-shadow: 12px 0 32px rgba(15, 23, 42, 0.12);
+  background: linear-gradient(180deg, #172038 0%, #111a2c 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 12px 0 32px rgba(15, 23, 42, 0.14);
+
+  // 顶部品牌光晕
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 240px;
+    pointer-events: none;
+    background: radial-gradient(60% 100% at 50% 0%, rgba(59, 130, 246, 0.22), transparent 70%);
+  }
 
   .sidebar-header {
-    height: 72px;
+    position: relative;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(10px);
+    margin-bottom: 18px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 14px 28px -18px rgba(2, 8, 23, 0.9);
 
     .header-logo {
-      width: 164px;
-      height: 48px;
+      width: 152px;
+      height: 44px;
       img {
         width: 100%;
         height: 100%;
@@ -190,30 +215,94 @@ const handleDropdownCommand = (command: string) => {
   }
 
   :deep(.el-menu) {
+    position: relative;
     border-right: none;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     background: transparent !important;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 0;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
   }
 
   :deep(.el-menu-item) {
-    height: 48px;
-    line-height: 48px;
-    margin-bottom: 8px;
-    border-radius: 14px;
-    color: rgba(255, 255, 255, 0.74) !important;
-    transition: all 0.2s ease;
+    height: 46px;
+    line-height: 46px;
+    margin-bottom: 6px;
+    padding: 0 14px !important;
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.66) !important;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
 
   :deep(.el-menu-item:hover) {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.07) !important;
     color: #fff !important;
     transform: translateX(2px);
+  }
+
+  :deep(.el-sub-menu__title) {
+    height: 46px;
+    line-height: 46px;
+    margin-bottom: 6px;
+    padding: 0 14px !important;
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.66) !important;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  :deep(.el-sub-menu__title:hover) {
+    background: rgba(255, 255, 255, 0.07) !important;
+    color: #fff !important;
+  }
+
+  :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
+    color: #fff !important;
+  }
+
+  :deep(.el-sub-menu__icon-arrow) {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  :deep(.el-menu--inline) {
+    width: 100%;
+    padding-left: 0 !important;
+    background: transparent !important;
+    overflow: visible;
+  }
+
+  :deep(.el-menu--inline .el-menu-item) {
+    height: 42px;
+    line-height: 42px;
+    margin-bottom: 4px;
+    padding-left: 34px !important;
+    padding-right: 14px !important;
+    font-size: 13.5px;
   }
 
   :deep(.el-menu-item.is-active) {
     background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%) !important;
     color: #fff !important;
+    font-weight: 600;
+    box-shadow: 0 12px 26px -16px rgba(59, 130, 246, 1);
   }
 }
 

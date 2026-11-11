@@ -51,6 +51,10 @@ app.use('/api/users', userRoutes);
 const productRoutes = require('./routes/products.routes');
 app.use('/api/products', productRoutes);
 
+// 挂载产品系列路由
+const productSeriesRoutes = require('./routes/product-series.routes');
+app.use('/api/product-series', productSeriesRoutes);
+
 // 挂载上传路由
 const uploadRoutes = require('./routes/upload.routes');
 app.use('/api/upload', uploadRoutes);
@@ -78,6 +82,10 @@ app.use('/api/tasks', taskRoutes);
 // 挂载订单中心路由
 const orderRoutes = require('./routes/orders.routes');
 app.use('/api/orders', orderRoutes);
+
+// 挂载B端订单路由
+const b2bOrderRoutes = require('./routes/b2b-orders.routes');
+app.use('/api/b2b-orders', b2bOrderRoutes);
 
 // 健康检查
 app.get('/api/health', (_req, res) => {
@@ -108,6 +116,10 @@ process.on('unhandledRejection', (reason) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ 后端服务已运行在 http://localhost:${PORT}`);
+  // 产品系列表初始化（建表 + 补齐默认系列，幂等）
+  require('./db/ensure-product-series')()
+    .then(() => console.log('✅ [DB] 产品系列表已就绪'))
+    .catch((err) => console.error('⚠️ [DB] 产品系列表初始化失败:', err.message));
 });
 
 module.exports = app;

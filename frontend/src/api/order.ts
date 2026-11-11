@@ -79,3 +79,8 @@ export const getOrderList = (params: OrderListParams) => {
 export const getOrderDetail = (id: number | string) => {
   return request.get(`/api/orders/${id}`)
 }
+
+// 上传订单文件并导入（range: today 当天 / month 当月 / all 全部）
+export const importOrders = (formData: FormData) => {
+  return request.post('/api/orders/import', formData, { timeout: 120000 })
+}

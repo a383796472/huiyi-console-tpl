@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="home-container">
     <!-- 页面标题 -->
     <div class="page-header">
@@ -8,7 +8,7 @@
 
     <!-- 统计卡片区域 -->
     <div class="stats-cards">
-      <div class="stat-card">
+      <div class="stat-card products-card">
         <div class="stat-icon products-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card category-card">
         <div class="stat-icon category-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
@@ -34,7 +34,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card stock-card">
         <div class="stat-icon stock-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card update-card">
         <div class="stat-icon update-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"></polyline>
@@ -93,7 +93,7 @@
         <h3 class="section-title">最近更新的产品</h3>
         <el-button type="text" @click="goToProductList">查看全部</el-button>
       </div>
-      <el-table :data="recentProducts" border style="width: 100%">
+      <el-table :data="recentProducts" stripe style="width: 100%">
         <el-table-column prop="name" label="品名" min-width="120">
           <template #default="{ row }">{{ row.name || '-' }}</template>
         </el-table-column>
@@ -302,93 +302,120 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@mixin panel {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 18px 36px -24px rgba(15, 23, 42, 0.28);
+}
+
 .home-container {
-  padding: 24px 0 0;
+  padding: 20px 0 28px;
   min-height: 100%;
 }
 
 .page-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   h1 {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #0f172a;
     margin: 0 0 6px 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.4px;
   }
   p {
-    font-size: 14px;
-    color: #64748b;
+    font-size: 13px;
+    color: #94a3b8;
     margin: 0;
   }
 }
 
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 24px;
+  position: relative;
+  @include panel;
   display: flex;
   align-items: center;
-  box-shadow:
-    0 1px 3px rgba(15, 23, 42, 0.04),
-    0 20px 40px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  transition: all 0.25s ease;
-  cursor: default;
+  gap: 16px;
+  padding: 20px 22px;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  // 左侧色条用于区分指标
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20px;
+    bottom: 20px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--accent);
+  }
 
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
+    border-color: var(--accent-border);
     box-shadow:
-      0 4px 8px rgba(15, 23, 42, 0.06),
-      0 24px 48px rgba(15, 23, 42, 0.08);
+      0 6px 12px rgba(15, 23, 42, 0.05),
+      0 26px 44px -26px rgba(15, 23, 42, 0.35);
+  }
+
+  &.products-card {
+    --accent: #3b82f6;
+    --accent-soft: rgba(59, 130, 246, 0.12);
+    --accent-border: rgba(59, 130, 246, 0.28);
+  }
+  &.category-card {
+    --accent: #10b981;
+    --accent-soft: rgba(16, 185, 129, 0.12);
+    --accent-border: rgba(16, 185, 129, 0.28);
+  }
+  &.stock-card {
+    --accent: #f59e0b;
+    --accent-soft: rgba(245, 158, 11, 0.14);
+    --accent-border: rgba(245, 158, 11, 0.3);
+  }
+  &.update-card {
+    --accent: #ef4444;
+    --accent-soft: rgba(239, 68, 68, 0.12);
+    --accent-border: rgba(239, 68, 68, 0.28);
   }
 }
 
 .stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 18px;
   flex-shrink: 0;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
-
-  &.products-icon {
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    color: #fff;
-  }
-  &.category-icon {
-    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-    color: #fff;
-  }
-  &.stock-icon {
-    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-    color: #fff;
-  }
-  &.update-icon {
-    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-    color: #fff;
-  }
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-border);
 }
 
 .stat-info {
+  min-width: 0;
   .stat-value {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 700;
+    line-height: 1.15;
     color: #0f172a;
-    margin-bottom: 2px;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.6px;
+    font-variant-numeric: tabular-nums;
   }
   .stat-label {
+    margin-top: 6px;
     font-size: 13px;
     color: #94a3b8;
     font-weight: 500;
@@ -396,61 +423,110 @@ onMounted(() => {
 }
 
 .quick-actions {
-  background: #fff;
-  border-radius: 18px;
-  padding: 22px 24px;
-  margin-bottom: 28px;
-  box-shadow:
-    0 1px 3px rgba(15, 23, 42, 0.04),
-    0 20px 40px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  @include panel;
+  padding: 20px 22px;
+  margin-bottom: 24px;
 }
 
 .section-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 18px 0;
-  letter-spacing: -0.3px;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.2px;
 }
 
 .action-buttons {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+
+  :deep(.el-button) {
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  :deep(.el-button--primary) {
+    border: none;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    box-shadow: 0 10px 22px -14px rgba(59, 130, 246, 0.95);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px -14px rgba(59, 130, 246, 1);
+    }
+  }
 }
 
 .recent-products {
-  background: #fff;
-  border-radius: 18px;
-  padding: 22px 24px;
-  margin-bottom: 28px;
-  box-shadow:
-    0 1px 3px rgba(15, 23, 42, 0.04),
-    0 20px 40px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  @include panel;
+  padding: 20px 22px 22px;
+  margin-bottom: 24px;
+
+  :deep(.el-table) {
+    --el-table-border-color: rgba(148, 163, 184, 0.14);
+    --el-table-header-bg-color: #f8fafc;
+    --el-table-header-text-color: #475569;
+    --el-table-row-hover-bg-color: #f1f5f9;
+    border-radius: 14px;
+
+    th.el-table__cell {
+      background: #f8fafc;
+      padding: 12px 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    td.el-table__cell {
+      padding: 12px 0;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .el-table__body tr.el-table__row--striped td.el-table__cell {
+      background: #fbfcfe;
+    }
+
+    // 去掉表格底部的占位横线
+    &::before,
+    .el-table__inner-wrapper::before {
+      display: none;
+    }
+  }
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+
+  .section-title {
+    margin: 0;
+  }
+
+  :deep(.el-button) {
+    font-weight: 600;
+  }
 }
 
 .charts-section {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .chart-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 22px 24px;
-  box-shadow:
-    0 1px 3px rgba(15, 23, 42, 0.04),
-    0 20px 40px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  @include panel;
+  padding: 20px 22px 22px;
+
+  .section-title {
+    margin-bottom: 8px;
+  }
 }
 
 .chart-placeholder {
@@ -462,9 +538,12 @@ onMounted(() => {
 
 .chart-bars {
   display: flex;
-  gap: 28px;
+  gap: 20px;
   align-items: flex-end;
-  height: 160px;
+  justify-content: space-between;
+  width: 100%;
+  height: 164px;
+  padding: 0 6px;
 }
 
 .bar-item {
@@ -472,6 +551,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   flex: 1;
+  min-width: 0;
 }
 
 .bar-label {
@@ -482,10 +562,11 @@ onMounted(() => {
 }
 
 .bar-container {
-  width: 36px;
-  height: 120px;
+  width: 100%;
+  max-width: 34px;
+  height: 116px;
   background: #f1f5f9;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
@@ -493,7 +574,9 @@ onMounted(() => {
 
 .bar {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 10px 10px 0 0;
+  // 顶部高光，让色块有体积感（底色由模板内联样式提供）
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 60%);
   transition: height 0.4s ease;
 }
 
@@ -502,12 +585,13 @@ onMounted(() => {
   color: #334155;
   font-weight: 600;
   margin-top: 8px;
+  font-variant-numeric: tabular-nums;
 }
 
 .pie-chart {
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: 152px;
+  height: 152px;
   border-radius: 50%;
   background: conic-gradient(
     #10b981 0deg 234deg,
@@ -515,7 +599,9 @@ onMounted(() => {
     #ef4444 324deg 360deg
   );
   flex-shrink: 0;
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.16),
+    0 22px 40px -26px rgba(15, 23, 42, 0.45);
 }
 
 .pie-center {
@@ -523,20 +609,23 @@ onMounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
+  width: 92px;
+  height: 92px;
   background: #fff;
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.1);
 }
 
 .pie-value {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  color: #10b981;
+  color: #059669;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
 }
 
 .pie-label {
@@ -546,29 +635,54 @@ onMounted(() => {
 }
 
 .pie-legend {
-  margin-left: 30px;
+  margin-left: 28px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  min-width: 168px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 10px;
+  font-size: 13px;
   color: #475569;
 
   .legend-color {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
+    border-radius: 3px;
+    flex-shrink: 0;
   }
 
   .legend-value {
     margin-left: auto;
     font-weight: 600;
     color: #0f172a;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (max-width: 1280px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .charts-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .page-header h1 {
+    font-size: 20px;
   }
 }
 </style>

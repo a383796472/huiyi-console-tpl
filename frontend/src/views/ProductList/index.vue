@@ -300,10 +300,28 @@
       <div class="series-list" v-loading="seriesLoading">
         <div v-for="s in seriesList" :key="s.id" class="series-row">
           <div class="series-info">
-            <el-tag :type="getSeriesTagType(s.name)">{{ s.name }}</el-tag>
-            <span class="series-count">{{ s.productCount }} 个产品</span>
+            <template v-if="editingId === s.id">
+              <el-input
+                v-model="editingName"
+                size="small"
+                maxlength="50"
+                style="width: 160px"
+                @keyup.enter="handleSaveEdit"
+                @keyup.escape="editingId = null"
+                ref="editInputRef"
+              />
+              <el-button link type="success" @click="handleSaveEdit">保存</el-button>
+              <el-button link @click="editingId = null">取消</el-button>
+            </template>
+            <template v-else>
+              <el-tag :type="getSeriesTagType(s.name)">{{ s.name }}</el-tag>
+              <span class="series-count">{{ s.productCount }} 个产品</span>
+            </template>
           </div>
-          <el-button link type="danger" @click="handleDeleteSeries(s)">删除</el-button>
+          <template v-if="editingId !== s.id">
+            <el-button link type="primary" @click="startEditSeries(s)">编辑</el-button>
+            <el-button link type="danger" @click="handleDeleteSeries(s)">删除</el-button>
+          </template>
         </div>
         <el-empty v-if="!seriesLoading && !seriesList.length" description="暂无系列" :image-size="60" />
       </div>
@@ -312,7 +330,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { Plus, Download, Setting } from '@element-plus/icons-vue'
@@ -320,6 +338,7 @@ import request, { baseURL, downloadFile } from '@/utils/request'
 import {
   getProductSeries,
   addProductSeries,
+  editProductSeries,
   deleteProductSeries,
   type ProductSeries
 } from '@/api/productSeries'
@@ -352,6 +371,9 @@ const seriesDialogVisible = ref(false)
 const seriesLoading = ref(false)
 const seriesAdding = ref(false)
 const newSeriesName = ref('')
+const editingId = ref<number | null>(null)
+const editingName = ref('')
+const editInputRef = ref()
 
 const fetchSeries = async () => {
   seriesLoading.value = true
@@ -391,6 +413,40 @@ const handleAddSeries = async () => {
     ElMessage.error(error?.response?.data?.message || '添加失败')
   } finally {
     seriesAdding.value = false
+  }
+}
+
+const startEditSeries = async (s: ProductSeries) => {
+  editingId.value = s.id
+  editingName.value = s.name
+  await nextTick()
+  editInputRef.value?.focus?.()
+  // 选中文本方便直接替换
+  const inputEl = editInputRef.value?.input as HTMLInputElement | undefined
+  if (inputEl) inputEl.select()
+}
+
+const handleSaveEdit = async () => {
+  const id = editingId.value
+  const name = editingName.value.trim()
+  if (!id) return
+  if (!name) {
+    ElMessage.warning('系列名称不能为空')
+    return
+  }
+  try {
+    const res = await editProductSeries(id, name)
+    if (res.data.code === 200) {
+      const cascade = res.data.data?.cascadeProducts ?? 0
+      ElMessage.success(cascade > 0 ? `修改成功，已同步更新 ${cascade} 个产品` : '修改成功')
+      editingId.value = null
+      await fetchSeries()
+      fetchProducts()
+    } else {
+      ElMessage.error(res.data.message || '修改失败')
+    }
+  } catch (error: any) {
+    ElMessage.error(error?.response?.data?.message || '修改失败')
   }
 }
 

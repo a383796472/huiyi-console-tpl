@@ -10,7 +10,10 @@ router.get('/', verifyToken, controller.getSeries);
 // 2. 新增系列（超管和管理员）
 router.post('/', verifyToken, requireRole('super_admin', 'admin'), controller.addSeries);
 
-// 3. 删除系列（超管和管理员）
+// 3. 编辑系列（超管和管理员）
+router.put('/:id', verifyToken, requireRole('super_admin', 'admin'), controller.updateSeries);
+
+// 4. 删除系列（超管和管理员）
 router.delete('/:id', verifyToken, requireRole('super_admin', 'admin'), controller.deleteSeries);
 
 module.exports = router;

@@ -46,7 +46,41 @@ exports.addSeries = async (req, res) => {
   }
 };
 
-// 3. 删除系列（系列下仍有产品时禁止删除，避免产品数据出现孤立系列）
+// 3. 编辑系列名称（重名校验 + 级联更新 products.series）
+exports.updateSeries = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT id, name FROM product_series WHERE id = ?', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ code: 404, message: '系列不存在' });
+
+    const oldName = rows[0].name;
+    const newName = String(req.body.name || '').trim();
+    if (!newName) return res.status(400).json({ code: 400, message: '请输入系列名称' });
+    if (newName.length > 100) return res.status(400).json({ code: 400, message: '系列名称不能超过 100 个字符' });
+    if (newName === oldName) return res.json({ code: 200, message: '未修改', data: { id: rows[0].id, name: oldName } });
+
+    // 重名校验（排除自身）
+    const [dup] = await db.query('SELECT id FROM product_series WHERE name = ? AND id <> ?', [newName, req.params.id]);
+    if (dup.length) return res.status(400).json({ code: 400, message: `系列「${newName}」已存在` });
+
+    // 事务：更新系列名 + 级联更新 products.series
+    await db.query('UPDATE product_series SET name = ? WHERE id = ?', [newName, req.params.id]);
+    const [affected] = await db.query('UPDATE products SET series = ? WHERE series = ?', [newName, oldName]);
+
+    res.json({
+      code: 200,
+      message: '修改成功',
+      data: { id: rows[0].id, name: newName, cascadeProducts: Number(affected.affectedRows) }
+    });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ code: 400, message: '该系列已存在' });
+    }
+    console.error('编辑产品系列失败：', error);
+    res.status(500).json({ code: 500, message: '编辑产品系列失败' });
+  }
+};
+
+// 4. 删除系列（系列下仍有产品时禁止删除，避免产品数据出现孤立系列）
 exports.deleteSeries = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT id, name FROM product_series WHERE id = ?', [req.params.id]);

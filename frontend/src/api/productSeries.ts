@@ -16,6 +16,11 @@ export const addProductSeries = (name: string) => {
   return request.post('/api/product-series', { name })
 }
 
+// 编辑系列
+export const editProductSeries = (id: number, name: string) => {
+  return request.put(`/api/product-series/${id}`, { name })
+}
+
 // 删除系列
 export const deleteProductSeries = (id: number) => {
   return request.delete(`/api/product-series/${id}`)
